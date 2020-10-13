@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+#team eYRC#1632
+#Team Members: Dhairya Jigar Shah  Ninad Sunil Jangle Karthik Swaminathan Dhruvi Rashmin Doshi 
+
 # rospy is a client python library for ros  
 import rospy
 # through Twist topic we will publish the velocities to the turtlebot
