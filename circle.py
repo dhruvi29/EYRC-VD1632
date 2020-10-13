@@ -8,30 +8,26 @@ turtle_stop=False
 initializing=True
 pub=1
 sub=1
-initial=1
+initial=Pose()
 a=0.0
 #/turtle1/Pose topic callback
 def pose_callback(pose):
 	global turtle_stop,initializing,initial,flag,a
 	
-	if (pose.theta<0.5 and pose.theta>-0.5): a = (pose.theta +2*math.pi)
-        else: a = abs(pose.theta)
+	if (pose.theta<initial.theta ): a = (pose.theta +2*math.pi)-initial.theta
+        else: a = pose.theta-initial.theta
 	
 	if initializing:
 		rospy.loginfo('initial pos x=%f ,y=%f ,theta=%f\n',pose.x,pose.y,pose.theta)
 		initial=pose
 		initializing=False
-		#print('im in if')
-	elif (round((a-initial.theta),2)<=0.51) and not turtle_stop and not initializing and (pose.theta<0):
-		
-		print('im in elif')
+	elif (round((2*math.pi-a),2))<=0.01 and not turtle_stop and not initializing:
 		rospy.loginfo('curr pos x=%f ,y=%f ,theta=%f\n',pose.x,pose.y,pose.theta)
 		turtle_stop=True
 		rospy.loginfo('Reached\n')
 		shutdown()
 	else:
-		
-		#print('im in else \n', round((a-initial.theta),2))
+		rospy.loginfo('curr pos x=%f ,y=%f ,theta=%f\n',pose.x,pose.y,pose.theta)
 		pass
 		
 	
