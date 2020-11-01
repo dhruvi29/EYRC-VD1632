@@ -205,10 +205,10 @@ class Edrone():
 		self.out_yaw = self.Kp[2] * self.error[2] + self.Ki[2] * self.err_sum[2] + self.Kd[2] * self.dErr[2]
 
 			# Calculating the motor speeds
-		self.pwm_cmd.prop4 = self.Thrust + self.out_roll + self.out_pitch + self.out_yaw
-		self.pwm_cmd.prop1 = self.Thrust + self.out_roll - self.out_pitch - self.out_yaw
-		self.pwm_cmd.prop2 = self.Thrust - self.out_roll - self.out_pitch + self.out_yaw
-		self.pwm_cmd.prop3 = self.Thrust - self.out_roll + self.out_pitch - self.out_yaw
+		self.pwm_cmd.prop1 = self.Thrust + self.out_roll + self.out_pitch + self.out_yaw
+		self.pwm_cmd.prop2 = self.Thrust + self.out_roll - self.out_pitch - self.out_yaw
+		self.pwm_cmd.prop3 = self.Thrust - self.out_roll - self.out_pitch + self.out_yaw
+		self.pwm_cmd.prop4 = self.Thrust - self.out_roll + self.out_pitch - self.out_yaw
 		print(self.pwm_cmd.prop1, self.pwm_cmd.prop2, self.pwm_cmd.prop3, self.pwm_cmd.prop4)
 	#	print(self.out_roll, self.out_pitch, self.out_yaw)
 		print(self.Thrust)

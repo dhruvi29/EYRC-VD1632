@@ -8,6 +8,9 @@ from sensor_msgs.msg import LaserScan
 from sensor_msgs.msg import NavSatFix
 
 flag =[0,0,0]
+i1=0
+i2=0
+i3=0
 
 class edrone():
     # constructor
@@ -36,9 +39,9 @@ class edrone():
         # self.altitude_range_Kd = 1301.0*0.3
         # self.altitude_range_Ki = 4.0*0.008
 
-        self.Kp = [100*0.06, -0.1*0.06, 2778.0*0.06]
-        self.Kd = [1*0.3, 0.1*0.06, 1301.0*0.3]
-        self.Ki = [-4*0.008, 0.0, 4.0*0.008]
+        self.Kp = [10000000*6, 10000000*6, 2778.0*0.06]
+        self.Kd = [10000*0.3, 10000*0.3, 1310.0*0.3]
+        self.Ki = [0, 0, 4.0*0.008]
 
         self.error = [0.0, 0.0, 0.0]
         self.prev_error = [0.0, 0.0, 0.0]
@@ -76,12 +79,12 @@ class edrone():
         # rospy.loginfo("curr altitude : %f", self.altitude_range_curr)
 
     def latitude_set_pid(self, msg):
-        self.Kp[0] = msg.Kp * 0.06
+        self.Kp[0] = msg.Kp * 6
         self.Ki[0] = msg.Ki * 0.008
         self.Kd[0] = msg.Kd * 0.3
 
     def longitude_set_pid(self, msg):
-        self.Kp[1] = msg.Kp * 0.06
+        self.Kp[1] = msg.Kp * 6
         self.Ki[1] = msg.Ki * 0.008
         self.Kd[1] = msg.Kd * 0.3
 
@@ -175,18 +178,37 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         if flag[0]==0:
             e_drone_1.pid()
-            if abs(e_drone_1.error[2])<0.08:
-                flag[0]=1
+            if abs(e_drone_1.error[2])<0.08 :
+                i1+=1
+                # print(i1)
+                rospy.loginfo("i1 = %d", i1)
+                if i1==500:
+                    flag[0]=1
 
         elif flag[1]==0 and flag[0]==1 :
             e_drone_2.pid()
-            if abs(e_drone_2.error[0])<0.000004517:
-                flag[1]=1
 
-        elif flag[2]==0 and flag[0]==1 and flag[1]==1:   
+            if abs(e_drone_2.error[0])<=0.000004517:
+                i2+=1
+                # print(i2)
+                rospy.loginfo("i2 = %d", i2)
+                if i2==100:
+                    flag[1]=1
+
+        elif flag[2]==0 and flag[0]==1 and flag[1]==1: 
             e_drone_3.pid()
-            if abs(e_drone_3.error[2])==0.001:
-                rospy.signal_shutdown("nikal")       
+            e_drone_3.attitude_cmd.rcThrottle=1000
+            e_drone_3.attitude_cmd.drone_cmd_pub.publish(e_drone_3.attitude_cmd)  
+            
+            if abs(e_drone_3.error[2])<=0.001:
+                e_drone_3.attitude_cmd.rcThrottle=1000
+                e_drone_3.attitude_cmd.rcRoll=1000
+                e_drone_3.attitude_cmd.rcPitch=1000
+                e_drone_3.attitude_cmd.rcYaw=1000
+                e_drone_3.attitude_cmd.drone_cmd_pub.publish(e_drone_3.attitude_cmd)
+
+                rospy.signal_shutdown("ninu")   
+                print("ninu")    
         r.sleep()
         
     
