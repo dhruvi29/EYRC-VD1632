@@ -53,7 +53,7 @@ class edrone():
         # self.Kp = [5000*100,
         # self.Kd = [2000*1000,1486*1000, 1550.0*0.3]
         # self.Ki = [0, 0, 0*0.008]
-        self.Kp = [0.06*1000*156, 1223* 0.06*1000, 1082*0.06]
+        self.Kp = [0.06*1000*176, 1243* 0.06*1000, 1082*0.06]
         self.Ki = [0.0, 0.0, 0.0*0.008]
         self.Kd = [0.3*10000*873, 2102*0.3*10000, 4476*0.3]
 
@@ -80,6 +80,7 @@ class edrone():
         self.dx = 0.0
         self.dy = 0.0
         self.prev_setpoint = [0.0,0.0]
+        self.r=rospy.Rate(1/self.sample_time)
 
         #--------------------------------------------------------------------------------------------------------------
         # Publishing on Topics - /drone_command , /latitude_error, /longitude_error, /altitude_error
@@ -193,16 +194,16 @@ class edrone():
         self.drone_cmd_pub.publish(self.attitude_cmd)
 
         # The below can be uncommented while tuning 
-        self.latitude_error_pub.publish(self.error[0]*1000000)
-        self.longitude_error_pub.publish(self.error[1])
-        self.altitude_error_pub.publish(self.error[2])
+        # self.latitude_error_pub.publish(self.error[0]*1000000)
+        # self.longitude_error_pub.publish(self.error[1])
+        # self.altitude_error_pub.publish(self.error[2])
 
     def distance(self, goal_latitude, goal_longitude, initial_latitude, initial_longitude):
-        self.dist = math.sqrt(math.pow((goal_longitude - initial_longitude) , 2) + math.pow((goal_latitude - initial_latitude) , 2))
-        self.t = self.dist/100
-        self.dx = (goal_latitude - initial_latitude)/1000
-        self.dy = (goal_longitude - initial_longitude)/1000
-        print(self.dx,self.dy)
+        # self.dist = math.sqrt(math.pow((goal_longitude - initial_longitude) , 2) + math.pow((goal_latitude - initial_latitude) , 2))
+        # self.t = self.dist/100
+        self.dx = (goal_latitude - initial_latitude)/450
+        self.dy = (goal_longitude - initial_longitude)/450
+        # print(self.dx,self.dy)
 
     def change(self,n):
         ''' state 1=take off, state 2=fly state 3=land state 4=gripper check,pick drop '''
@@ -216,7 +217,7 @@ class edrone():
                 self.set_point[2]= self.fly_hieght+self.goal_point[2]
             else:
                 self.set_point[2]+=self.fly_hieght
-            print(self.set_point[2])
+            # print(self.set_point[2])
         elif self.drone_state==2:
             #self.set_point[0]=self.goal_point[0]
             #self.set_point[1]=self.goal_point[1]
@@ -237,10 +238,14 @@ class edrone():
                 self.distance(self.goal_point[0], self.goal_point[1], self.set_point[0], self.set_point[1])
                 self.change(2)
         elif self.drone_state==2:##path plan
-            self.path_plan()
             # rospy.loginfo("curr point lat: %f,long: %f altitude: %f",self.curr_point[0],self.curr_point[1],self.curr_point[2])
-            if abs(self.goal_point[0]-self.set_point[0])<0.000000800 and abs(self.goal_point[1]-self.set_point[1])<0.000000800:
-                self.change(3)
+            if abs(self.goal_point[0]-self.curr_point[0])<0.0000800 and abs(self.goal_point[1]-self.curr_point[1])<0.0000800:
+                self.set_point[0]=self.goal_point[0]
+                self.set_point[1]=self.goal_point[1]
+                if abs(self.goal_point[0]-self.curr_point[0])<0.000000800 and abs(self.goal_point[1]-self.curr_point[1])<0.00000080:
+                    self.change(3)
+            else:
+                self.path_plan()
         elif self.drone_state==3:##land
             # rospy.loginfo("curr point lat: %f,long: %f altitude: %f",self.curr_point[0],self.curr_point[1],self.curr_point[2])
             if abs(self.error[2])<0.01:
@@ -251,10 +256,10 @@ class edrone():
                 # while(self.qrcode[0]==0):
                 #     rospy.logwarn("waiting for QR")
                 #     continue
-                # self.goal_point= self.qrcode 
-                # # self.QR()
+                self.goal_point= self.qrcode 
+                # self.QR()
                 # print(self.goal_point)
-                self.goal_point=[19.00000,72.0000,8.44]
+                # self.goal_point=[19.00000,72.0000,8.44]
                 r.sleep()
                 self.change(1)
             else:
@@ -275,33 +280,50 @@ class edrone():
 
     def wall_foll_waypoint_gen(self):
         global regions
-        if self.obs_dist[regions["right"]]<3 and self.obs_dist[regions["front"]]<3:
-            self.set_point[0]=self.prev_error[0]-self.dx/3
-            self.set_point[1]=self.prev_error[1]+self.dy/3
-        elif self.obs_dist[regions["left"]]<3 and self.obs_dist[regions["front"]]<3:
-            self.set_point[0]=self.prev_error[0]-self.dx/3
-            self.set_point[1]=self.prev_error[1]-self.dy/3
-        elif self.obs_dist[regions["left"]]<3:
-            self.set_point[0]=self.prev_error[0]+self.dx/3
-            self.set_point[1]=self.prev_error[1]-self.dy/3
-        elif self.obs_dist[regions["right"]]<3:
-            self.set_point[0]=self.prev_error[0]+self.dx/3
-            self.set_point[1]=self.prev_error[1]+self.dy/3
-        elif self.obs_dist[regions["front"]]<3:
-            self.set_point[0]=self.prev_error[0]-self.dx/3
-            self.set_point[1]=self.prev_error[1]+self.dy/3
+        if self.obs_dist[regions["right"]]<7 and self.obs_dist[regions["left"]]<7:
+            self.set_point[0]=self.prev_setpoint[0]-self.dx/6
+            self.set_point[1]=self.prev_setpoint[1]
+        elif self.obs_dist[regions["right"]]<7 and self.obs_dist[regions["front"]]<10:
+            self.set_point[0]=self.prev_setpoint[0]-self.dx/6
+            self.set_point[1]=self.prev_setpoint[1]-self.dy/1.25
+            # rospy.loginfo("R   F")
+        elif self.obs_dist[regions["left"]]<7 and self.obs_dist[regions["front"]]<10:
+            self.set_point[0]=self.prev_setpoint[0]-self.dx/6
+            self.set_point[1]=self.prev_setpoint[1]+self.dy/1.25
+            # rospy.loginfo("L   F")
+
+        elif self.obs_dist[regions["left"]]<7:
+            self.set_point[0]=self.prev_setpoint[0]+self.dx/6
+            self.set_point[1]=self.prev_setpoint[1]+self.dy/1.25
+            # rospy.loginfo("   L   ")
+        elif self.obs_dist[regions["right"]]<7:
+            self.set_point[0]=self.prev_setpoint[0]+self.dx/6
+            self.set_point[1]=self.prev_setpoint[1]-self.dy/1.25
+            # rospy.loginfo("   R  ")
+
+        elif self.obs_dist[regions["front"]]<10:
+            self.set_point[0]=self.prev_setpoint[0]-self.dx/6
+            self.set_point[1]=self.prev_setpoint[1]+self.dy/1.25
+            # rospy.loginfo("   F***")
+
 
         
 
     
     def path_plan(self):
-        if min(self.obs_dist)<4:
+        if ((self.obs_dist[0]<7 and self.obs_dist[0]>1)or (self.obs_dist[2]<7 and self.obs_dist[2]>1) or (self.obs_dist[3]<10 and self.obs_dist[3]>1)):
             self.wall_foll_waypoint_gen()
-            rospy.logerr("wall following")
+            # rospy.logerr("wall following")
         else:
-            self.set_point[0] = self.prev_setpoint[0] + self.dx
-            self.set_point[1] = self.prev_setpoint[1] + self.dy
-            rospy.logwarn("no obstacle")
+            if (self.goal_point[0]-self.curr_point[0])<0:
+                self.set_point[0] = self.prev_setpoint[0] + self.dx
+            else:
+                self.set_point[0] = self.prev_setpoint[0] - self.dx
+            if (self.goal_point[1]-self.curr_point[1])>0:
+                self.set_point[1] = self.prev_setpoint[1] + self.dy
+            else:
+                self.set_point[1] = self.prev_setpoint[1] - self.dy
+            # rospy.logwarn("no obstacle")
 
         # print(self.set_point[0],self.set_point[1])
 
