@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python2
 
 import rospy
 from gazebo_msgs.msg import ModelStates
