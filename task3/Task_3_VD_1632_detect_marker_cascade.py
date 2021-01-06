@@ -26,7 +26,7 @@ class detect():
 		self.focal_length = (self.img_width/2)/tan(self.hfov_rad/2)	
 
 		# publications	
-		self.detect_pub = rospy.Publisher("/marker_data", MarkerData, queue_size =1)
+		self.detect_pub = rospy.Publisher("/edrone/marker_data", MarkerData, queue_size =1)
 		self.detected = rospy.Publisher("/isDetected",Bool,queue_size=1)
 		self.image_pub = rospy.Publisher("marker_image",Image,queue_size=1) 
 
