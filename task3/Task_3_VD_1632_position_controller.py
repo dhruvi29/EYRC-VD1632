@@ -103,7 +103,7 @@ class edrone():
         # rospy.Subscriber('/edrone/gripper_check',String,self.gripper_callback)
         rospy.Subscriber('/edrone/range_finder_top', LaserScan, self.range_finder_top_callback)
         # rospy.Subscriber('/qrscan', qr_code, self.qr_callback)
-        rospy.Subscriber('/marker_data',MarkerData,self.marker_callback)
+        rospy.Subscriber('/edrone/marker_data',MarkerData,self.marker_callback)
         rospy.Subscriber("/isDetected",Bool,self.detection_clbk)
         # rospy.Subscriber('/edrone/range_finder_bottom', LaserScan, self.range_finder_bottom_callback)
 
