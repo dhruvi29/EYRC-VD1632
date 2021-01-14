@@ -236,11 +236,11 @@ class Edrone():
 # Main Driver Function
 if __name__ == '__main__':
     #Creating instance of class Edrone
-    e_drone = Edrone()
+    self = Edrone()
 
     #assigning Rate  
-    r = rospy.Rate(1/e_drone.sample_time)  
+    r = rospy.Rate(1/self.sample_time)  
     while not rospy.is_shutdown():      
         # calling the PID controller function when rospy is active
-        e_drone.pid()
+        self.pid()
         r.sleep()

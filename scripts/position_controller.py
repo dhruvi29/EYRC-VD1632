@@ -12,17 +12,7 @@ from vitarana_drone.srv import Gripper, GripperResponse, GripperRequest
 import math
 
 # global flag variables
-flag =[0,0,0]
-i1=0
-i2=0
-i3=0
 
-regions ={
-        "right" : 0 ,
-        "back" : 1 ,
-        "left" : 2,
-        "front" : 3
-        }
 
 #Creating Class For implementing given task
 class edrone():
@@ -34,11 +24,12 @@ class edrone():
         rospy.init_node('position_controller')
 
         # initialising set points as passed from parameters
-        self.goal_point = [19.0007046575,71.9998955286, 22.1599967919]
+        self.goal_point = [0,0,0]
         #initialising current points
-        self.curr_point = [19.0009248718,71.9998318945, 22.16]
-        self.set_point = [19.0009248718,71.9998318945, 22.16]
-        self.set_point[2]+=3.00
+        self.curr_point = [10,0,0]
+        self.set_point = [0,0,0]
+        self.initial_point=[18.9992411381,71.9998195495,16.6600228704]
+
 
         #initialsing Roll, Pitch and Yaw 
         self.attitude_cmd = edrone_cmd()
@@ -65,23 +56,36 @@ class edrone():
         self.output = [0.0, 0.0, 0.0]
         self.dErr = [0.0, 0.0, 0.0]
         self.obs_dist = [0.0,0.0,0.0,0.0]
-        self.next_point=[0,0,0,0]
         self.qrcode = [0.0,0.0,0.0]
 
         self.sample_time = 0.06
 
+        self.regions ={
+        "right" : 0 ,
+        "back" : 1 ,
+        "left" : 2,
+        "front" : 3
+        }
+
         # state 1)takeoff 2)fly 3)land 4)gripper check,pick and drop,QR
-        self.drone_state=1
+        self.drone_state=0
         self.isLoaded=False
-        self.fly_hieght=3.0000
+        self.fly_hieght=4.0000
         self.gripper=False
         self.dist = 0.0
         self.t = 0.0
         self.dx = 0.0
         self.dy = 0.0
-        self.prev_setpoint = [0.0,0.0]
+        self.prev_setpoint = [18.9992411381,71.9998195495,16.6600228704]
         self.r=rospy.Rate(1/self.sample_time)
 
+        self.detect = False
+        self.lat_setpoint=[0,0,0]
+        self.long_setpoint=[0,0,0]
+        self.alt_setpoint=[0,0,0]
+        self.loc_count=-1
+        self.isDetected=False
+        self.stopDetection=False
         #--------------------------------------------------------------------------------------------------------------
         # Publishing on Topics - /drone_command , /latitude_error, /longitude_error, /altitude_error
         self.drone_cmd_pub = rospy.Publisher('/drone_command', edrone_cmd, queue_size=1)
@@ -99,6 +103,9 @@ class edrone():
         rospy.Subscriber('/edrone/gripper_check',String,self.gripper_callback)
         rospy.Subscriber('/edrone/range_finder_top', LaserScan, self.range_finder_top_callback)
         rospy.Subscriber('/qrscan', qr_code, self.qr_callback)
+        rospy.Subscriber("/edrone/err_x_m", Float64, self.err_xm_callback)
+        rospy.Subscriber("/edrone/err_y_m", Float64, self.err_ym_callback)
+        rospy.Subscriber("/isDetected",Bool,self.detection_clbk)
         # rospy.Subscriber('/edrone/range_finder_bottom', LaserScan, self.range_finder_bottom_callback)
 
         self.gripper_srv=rospy.ServiceProxy('/edrone/activate_gripper',Gripper)
@@ -112,12 +119,17 @@ class edrone():
         self.qrcode[2]= msg.altitude
         rospy.loginfo('QR: %f %f %f',self.qrcode[0],self.qrcode[1],self.qrcode[2])
 
+    def err_xm_callback(self,msg):
+        self.err_x_m = msg.data
+
+    def err_ym_callback(self,msg):
+        self.err_y_m = msg.data
+
     def range_finder_top_callback(self, msg):
-        self.obs_dist[regions["right"]] = msg.ranges[0]
-        self.obs_dist[regions["back"]] = msg.ranges[1]
-        self.obs_dist[regions["left"]] = msg.ranges[2]
-        self.obs_dist[regions["front"]] = msg.ranges[3]
-        # rospy.loginfo("%f %f %f %f ", self.obs_dist[regions["right"]], self.obs_dist[regions["back"]], self.obs_dist[regions["left"]], self.obs_dist[regions["front"]])
+        self.obs_dist[self.regions["right"]] = msg.ranges[0]
+        self.obs_dist[self.regions["back"]] = msg.ranges[1]
+        self.obs_dist[self.regions["left"]] = msg.ranges[2]
+        self.obs_dist[self.regions["front"]] = msg.ranges[3]
     def gripper_callback(self,msg):
         self.gripper=msg.data
     def gps_callback(self, msg):
@@ -146,7 +158,10 @@ class edrone():
     #     self.altitude_range_Kp = msg.Kp * 0.06
     #     self.altitude_range_Ki = msg.Ki * 0.008
     #     self.altitude_range_Kd = msg.Kd * 0.3
-
+    def detection_clbk(self,msg):
+        if not self.stopDetection:
+            self.isDetected=msg.data
+            print(self.isDetected)
     #--------------------------------------------------------------------------------------------------------------------------
     # main function for executing PID ALGORITHM
     def pid(self):
@@ -188,8 +203,7 @@ class edrone():
         self.prev_error[0] = self.error[0]
         self.prev_error[1] = self.error[1]
         self.prev_error[2] = self.error[2]
-        self.prev_setpoint[0] = self.set_point[0]
-        self.prev_setpoint[1] = self.set_point[1]    
+   
         #publishing  on /edrone_command topic
         self.drone_cmd_pub.publish(self.attitude_cmd)
 
@@ -198,78 +212,120 @@ class edrone():
         # self.longitude_error_pub.publish(self.error[1])
         # self.altitude_error_pub.publish(self.error[2])
 
-    def distance(self, goal_latitude, goal_longitude, initial_latitude, initial_longitude):
+    def distance(self):
         # self.dist = math.sqrt(math.pow((goal_longitude - initial_longitude) , 2) + math.pow((goal_latitude - initial_latitude) , 2))
         # self.t = self.dist/100
-        self.dx = (goal_latitude - initial_latitude)/450
-        self.dy = (goal_longitude - initial_longitude)/450
+        self.dx = (self.goal_point[0] - self.set_point[0])/100
+        self.dy = (self.goal_point[1] - self.set_point[1])/100
         # print(self.dx,self.dy)
 
-    def change(self,n):
-        ''' state 1=take off, state 2=fly state 3=land state 4=gripper check,pick drop '''
-        self.drone_state=n
-        rospy.loginfo("changing to drone_state %f ",self.drone_state)
-        if self.drone_state ==1:
-            self.set_point[0]=self.curr_point[0]
-            self.set_point[1]=self.curr_point[1]
-            self.set_point[2]=self.curr_point[2]
-            if self.goal_point[2]>self.curr_point[2]:
-                self.set_point[2]= self.fly_hieght+self.goal_point[2]
-            else:
-                self.set_point[2]+=self.fly_hieght
-            # print(self.set_point[2])
-        elif self.drone_state==2:
-            #self.set_point[0]=self.goal_point[0]
-            #self.set_point[1]=self.goal_point[1]
-            self.set_point[2]=self.goal_point[2]
-            if self.goal_point[2]>self.curr_point[2]:
-                self.set_point[2]+= self.fly_hieght
-            else:
-                self.set_point[2]=self.curr_point[2]
-        elif self.drone_state==3:
-            self.set_point[0]=self.goal_point[0]
-            self.set_point[1]=self.goal_point[1]
-            self.set_point[2]=self.goal_point[2]
+    # def change(self,n,x,y,z):
+        
 
 
     def handler(self):
-        if self.drone_state==1:##takeoff
-            if abs(self.error[2])<0.01:
-                self.distance(self.goal_point[0], self.goal_point[1], self.set_point[0], self.set_point[1])
-                self.change(2)
-        elif self.drone_state==2:##path plan
-            # rospy.loginfo("curr point lat: %f,long: %f altitude: %f",self.curr_point[0],self.curr_point[1],self.curr_point[2])
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0000800 and abs(self.goal_point[1]-self.curr_point[1])<0.0000800:
-                self.set_point[0]=self.goal_point[0]
-                self.set_point[1]=self.goal_point[1]
-                if abs(self.goal_point[0]-self.curr_point[0])<0.000000800 and abs(self.goal_point[1]-self.curr_point[1])<0.00000080:
-                    self.change(3)
+        if self.drone_state==0:#change to takeoff -> state=1
+            self.set_point[0]=self.initial_point[0]
+            self.set_point[1]=self.initial_point[1]
+            self.set_point[2]=self.initial_point[2]
+            self.set_point[2]+=self.fly_hieght
+            self.drone_state=1
+        elif self.drone_state==1:
+            rospy.loginfo("taking off")
+            if abs(self.error[2])<0.1:
+                self.prev_setpoint[0],self.prev_setpoint[1],self.prev_setpoint[2] = self.set_point[0],self.set_point[1],self.set_point[2],
+                self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[self.loc_count+1],self.long_setpoint[self.loc_count+1],self.alt_setpoint[self.loc_count+1]
+                self.drone_state=2
+        elif self.drone_state==2:
+            self.distance()
+            if self.loc_count==-1:
+                self.loc_count+=1
+                self.set_point[2]=max(self.set_point[2],self.alt_setpoint[self.loc_count]+self.fly_hieght)
+                self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[self.loc_count],self.long_setpoint[self.loc_count],self.alt_setpoint[self.loc_count]
+            elif self.loc_count==0:
+                rospy.loginfo("point 1")
+                if self.detect:
+                    if not self.isDetected:
+                        self.set_point[2]+=0.1
+                        self.goal_point[2]+=0.1
+                        print(self.set_point[2])
+
+                    else:
+                        self.stopDetection=True
+                        print("detection success")
+                        self.goal_point[0] = self.curr_point[0]-self.err_x_m/110692.0702932625
+                        self.goal_point[1] = self.curr_point[1]-self.err_y_m/105292.0089353767
+                        if -1 < self.err_x_m < 1 and -1 < self.err_y_m < 1 :
+                            self.set_point[2] = self.alt_setpoint[self.loc_count]+5                        
+                        if -0.2 < self.err_x_m < 0.2 and -0.2 < self.err_y_m < 0.2 :
+                            self.loc_count=1
+                            self.set_point[2]=max(self.set_point[2],self.alt_setpoint[self.loc_count]+self.fly_hieght)
+                            self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[self.loc_count],self.long_setpoint[self.loc_count],self.alt_setpoint[self.loc_count]   
+                            self.detect = False
+                            self.stopDetection=False
+                elif abs(self.goal_point[0]-self.curr_point[0])<0.00000500 and abs(self.goal_point[1]-self.curr_point[1])<0.00000500:
+                    self.set_point[2]=self.goal_point[2]+1
+                    if(abs(self.set_point[2]-self.curr_point[2])<0.1 ):
+                        self.detect = True
+                    
+
+
+
+            elif self.loc_count==1:
+                rospy.loginfo("point 2")
+                if self.detect == True :
+                    if not self.isDetected:
+                        self.set_point[2]+=0.1
+                        self.goal_point[2]+=0.1
+                    else:
+                        self.stopDetection=True
+                        self.goal_point[0] = self.curr_point[0]-self.err_x_m/110692.0702932625
+                        self.goal_point[1] = self.curr_point[1]-self.err_y_m/105292.0089353767
+                        if -1 < self.err_x_m < 1 and -1 < self.err_y_m < 1 :
+                            self.set_point[2] = self.alt_setpoint[self.loc_count]+5
+                        if -0.2 < self.err_x_m < 0.2 and -0.2 < self.err_y_m < 0.2 :
+                            self.loc_count=2
+                            self.set_point[2]=max(self.set_point[2],self.alt_setpoint[self.loc_count]+self.fly_hieght)
+                            self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[self.loc_count],self.long_setpoint[self.loc_count],self.alt_setpoint[self.loc_count]   
+                            self.detect = False
+                            self.stopDetection=False
+                elif abs(self.goal_point[0]-self.curr_point[0])<0.000050 and abs(self.goal_point[1]-self.curr_point[1])<0.0000050:
+                    self.set_point[2]=self.goal_point[2]+1
+                    if(abs(self.set_point[2]-self.curr_point[2])<0.1 ):
+                        self.detect = True
+
+
+            elif self.loc_count==2:
+                rospy.loginfo("point 3")
+                if self.detect == True :
+                    if not self.isDetected:
+                        self.set_point[2]+=0.1
+                        print(self.set_point[2])
+                    else:
+                        self.stopDetection=True
+                        self.goal_point[0] = self.curr_point[0]-self.err_x_m/110692.0702932625
+                        self.goal_point[1] = self.curr_point[1]-self.err_y_m/105292.0089353767
+                        if -0.2 < self.err_x_m < 0.2 and -0.2 < self.err_y_m < 0.2 :
+                            self.drone_state=3
+                            self.goal_point[2],self.set_point[2]=self.alt_setpoint[2],self.alt_setpoint[2]
+                            self.detect = False
+                            self.stopDetection=False
+                elif abs(self.goal_point[0]-self.curr_point[0])<0.0000050 and abs(self.goal_point[1]-self.curr_point[1])<0.0000050:
+                    self.set_point[2]=self.goal_point[2]+1
+                    rospy.logwarn("reached set point")
+                    rospy.loginfo("setpoint: %f,curr %f",self.set_point[2],self.curr_point[2])
+                    if(abs(self.error[2])<0.2 ):
+                        self.detect = True
+                        rospy.logwarn("I have reached altitude,I will now start detection")
+
+
             else:
-                self.path_plan()
-        elif self.drone_state==3:##land
-            # rospy.loginfo("curr point lat: %f,long: %f altitude: %f",self.curr_point[0],self.curr_point[1],self.curr_point[2])
-            if abs(self.error[2])<0.01:
-                self.change(4)   
-        elif self.drone_state==4: ##load unload
-            if not self.isLoaded:
-                self.check_pick_gripper() ##change the goal point in gripper
-                # while(self.qrcode[0]==0):
-                #     rospy.logwarn("waiting for QR")
-                #     continue
-                self.goal_point= self.qrcode 
-                # self.QR()
-                # print(self.goal_point)
-                # self.goal_point=[19.00000,72.0000,8.44]
-                r.sleep()
-                self.change(1)
-            else:
-                # self.drop_parcel()
-                rospy.signal_shutdown("reached")
+                rospy.signal_shutdown("Bye")
 
     def check_pick_gripper(self):
         print(self.gripper)
-        while self.gripper=="False":
-            rospy.logwarn("gripping unavailable")
+        while self.gripper==False:
+            rospy.loginfo("gripping unavailable")
             continue
         res=GripperResponse()
         
@@ -279,31 +335,30 @@ class edrone():
         self.isLoaded=True
 
     def wall_foll_waypoint_gen(self):
-        global regions
-        if self.obs_dist[regions["right"]]<7 and self.obs_dist[regions["left"]]<7:
+        if 1<self.obs_dist[self.regions["right"]]<7 and 1<self.obs_dist[self.regions["left"]]<7 and self.obs_dist[self.regions["front"]]>10 and self.obs_dist[self.regions["back"]]>10:
             self.set_point[0]=self.prev_setpoint[0]-self.dx/6
             self.set_point[1]=self.prev_setpoint[1]
-        elif self.obs_dist[regions["right"]]<7 and self.obs_dist[regions["front"]]<10:
+        elif 1<self.obs_dist[self.regions["right"]]<7 and 1<self.obs_dist[self.regions["front"]]<10 and self.obs_dist[self.regions["left"]]>7 and self.obs_dist[self.regions["back"]]>10:
             self.set_point[0]=self.prev_setpoint[0]-self.dx/6
             self.set_point[1]=self.prev_setpoint[1]-self.dy/1.25
             # rospy.loginfo("R   F")
-        elif self.obs_dist[regions["left"]]<7 and self.obs_dist[regions["front"]]<10:
+        elif 1<self.obs_dist[self.regions["left"]]<7 and 1<self.obs_dist[self.regions["front"]]<10 and self.obs_dist[self.regions["right"]]>7 and self.obs_dist[self.regions["back"]]>10:
             self.set_point[0]=self.prev_setpoint[0]-self.dx/6
             self.set_point[1]=self.prev_setpoint[1]+self.dy/1.25
             # rospy.loginfo("L   F")
 
-        elif self.obs_dist[regions["left"]]<7:
-            self.set_point[0]=self.prev_setpoint[0]+self.dx/6
-            self.set_point[1]=self.prev_setpoint[1]+self.dy/1.25
+        elif 1<self.obs_dist[self.regions["left"]]<7 and self.obs_dist[self.regions["front"]]>10 and self.obs_dist[self.regions["right"]]>7 and self.obs_dist[self.regions["back"]]>10:
+            self.set_point[0]=self.prev_setpoint[0]+self.dx*1.25
+            self.set_point[1]=self.prev_setpoint[1]#+self.dy/1.25
             # rospy.loginfo("   L   ")
-        elif self.obs_dist[regions["right"]]<7:
-            self.set_point[0]=self.prev_setpoint[0]+self.dx/6
-            self.set_point[1]=self.prev_setpoint[1]-self.dy/1.25
+        elif 1<self.obs_dist[self.regions["right"]]<7 and self.obs_dist[self.regions["front"]]>10 and self.obs_dist[self.regions["left"]]>7 and self.obs_dist[self.regions["back"]]>10:
+            self.set_point[0]=self.prev_setpoint[0]+self.dx*1.25
+            self.set_point[1]=self.prev_setpoint[1]#-self.dy/1.25
             # rospy.loginfo("   R  ")
 
-        elif self.obs_dist[regions["front"]]<10:
-            self.set_point[0]=self.prev_setpoint[0]-self.dx/6
-            self.set_point[1]=self.prev_setpoint[1]+self.dy/1.25
+        elif 1<self.obs_dist[self.regions["front"]]<10 and self.obs_dist[self.regions["right"]]>7 and self.obs_dist[self.regions["left"]]>7 and self.obs_dist[self.regions["back"]]>10:
+            self.set_point[0]=self.prev_setpoint[0]#-self.dx/6
+            self.set_point[1]=self.prev_setpoint[1]+self.dy*3
             # rospy.loginfo("   F***")
 
 
@@ -313,19 +368,12 @@ class edrone():
     def path_plan(self):
         if ((self.obs_dist[0]<7 and self.obs_dist[0]>1)or (self.obs_dist[2]<7 and self.obs_dist[2]>1) or (self.obs_dist[3]<10 and self.obs_dist[3]>1)):
             self.wall_foll_waypoint_gen()
-            # rospy.logerr("wall following")
         else:
-            if (self.goal_point[0]-self.curr_point[0])<0:
-                self.set_point[0] = self.prev_setpoint[0] + self.dx
-            else:
-                self.set_point[0] = self.prev_setpoint[0] - self.dx
-            if (self.goal_point[1]-self.curr_point[1])>0:
-                self.set_point[1] = self.prev_setpoint[1] + self.dy
-            else:
-                self.set_point[1] = self.prev_setpoint[1] - self.dy
-            # rospy.logwarn("no obstacle")
+            self.set_point[0] = self.prev_setpoint[0] + self.dx
+            self.set_point[1] = self.prev_setpoint[1] + self.dy
 
-        # print(self.set_point[0],self.set_point[1])
+        self.prev_setpoint[0] = self.set_point[0]
+        self.prev_setpoint[1] = self.set_point[1] 
 
 
         
@@ -336,9 +384,12 @@ if __name__ == "__main__":
     # print("init main")
     # creating objects for different setpoints
     e_drone = edrone()
-    r = rospy.Rate(1/e_drone.sample_time)  
-    e_drone.change(1)
+    e_drone.lat_setpoint=[18.9993675932,18.9990965928,18.9990965925]
+    e_drone.long_setpoint=[72.0000569892,72.0000664814,71.9999050292 ]
+    e_drone.alt_setpoint=[10.7,10.75,22.2]
+    # loc_count=-1
     while not rospy.is_shutdown():
         e_drone.handler()
+        e_drone.path_plan()
         e_drone.pid()
-        r.sleep()
+        e_drone.r.sleep()
