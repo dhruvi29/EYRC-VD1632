@@ -34,11 +34,12 @@ class edrone():
         rospy.init_node('position_controller')
 
         # initialising set points as passed from parameters
-        self.goal_point = [18.9990965925,71.9999050292, 22.2]
+        self.goal_point = [19.000000001,71.999957578,8.44100417359]
         #initialising current points
-        self.curr_point = [18.9992411381,71.9998195495, 16.6600228704]
-        self.set_point = [18.9992411381,71.9998195495, 16.6600228704]
+        self.curr_point = [19.0,72.0, 8.440994388]
+        self.set_point = [19.0,72.0, 8.440994388]
         self.set_point[2]+=3.00
+        self.B2 = [19.0007030405,71.9999429002,22.1600026799]
 
         #initialsing Roll, Pitch and Yaw 
         self.attitude_cmd = edrone_cmd()
@@ -199,10 +200,10 @@ class edrone():
         # self.altitude_error_pub.publish(self.error[2])
 
     def distance(self, goal_latitude, goal_longitude, initial_latitude, initial_longitude):
-        self.dist = math.sqrt(math.pow(110692.0702932625 * (goal_longitude - initial_longitude) , 2) + math.pow(105292.0089353767 * (goal_latitude - initial_latitude) , 2))
-        self.t = self.dist*14
-        self.dx = (goal_latitude - initial_latitude)/self.t
-        self.dy = (goal_longitude - initial_longitude)/self.t
+        # self.dist = math.sqrt(math.pow(110692.0702932625 * (goal_longitude - initial_longitude) , 2) + math.pow(105292.0089353767 * (goal_latitude - initial_latitude) , 2))
+        # self.t = self.dist*14
+        self.dx = (goal_latitude - initial_latitude)/1000#self.t
+        self.dy = (goal_longitude - initial_longitude)/1000#self.t
         # print(self.dx,self.dy)
 
     def change(self,n):
@@ -243,7 +244,8 @@ class edrone():
                 self.set_point[0]=self.goal_point[0]
                 self.set_point[1]=self.goal_point[1]
                 if abs(self.goal_point[0]-self.curr_point[0])<0.000001000 and abs(self.goal_point[1]-self.curr_point[1])<0.000001000:
-                    self.change(3)
+			        self.gripper_srv(False)
+			        self.change(3)
             else:
                 self.path_plan()
         elif self.drone_state==3:##land
@@ -256,7 +258,7 @@ class edrone():
                 # while(self.qrcode[0]==0):
                 #     rospy.logwarn("waiting for QR")
                 #     continue
-                self.goal_point= self.qrcode 
+                self.goal_point= self.B2 
                 # self.QR()
                 # print(self.goal_point)
                 # self.goal_point=[19.00000,72.0000,8.44]
@@ -268,61 +270,79 @@ class edrone():
 
     def check_pick_gripper(self):
         print(self.gripper)
+	
         while self.gripper=="False":
             rospy.logwarn("gripping unavailable")
             continue
         res=GripperResponse()
-        
-        while not res.result:
+        print(res)
+       	while not res.result:
             res = self.gripper_srv(True)
             rospy.loginfo("Pick up successful")
         self.isLoaded=True
 
     def wall_foll_waypoint_gen(self):
         global regions
-        if 1<self.obs_dist[regions["right"]]<7 and 1<self.obs_dist[regions["left"]]<7 and self.obs_dist[regions["front"]]>10 and self.obs_dist[regions["back"]]>10:
+        if 1<self.obs_dist[regions["right"]]<6 and 1<self.obs_dist[regions["left"]]<6 and self.obs_dist[regions["front"]]>6 and self.obs_dist[regions["back"]]>6:
             self.set_point[0]=self.prev_setpoint[0]-self.dx/6
             self.set_point[1]=self.prev_setpoint[1]
-        elif 1<self.obs_dist[regions["right"]]<7 and 1<self.obs_dist[regions["front"]]<10 and self.obs_dist[regions["left"]]>7 and self.obs_dist[regions["back"]]>10:
+        elif 1<self.obs_dist[regions["right"]]<6 and 1<self.obs_dist[regions["front"]]<6 and self.obs_dist[regions["left"]]>6 and self.obs_dist[regions["back"]]>6:
             self.set_point[0]=self.prev_setpoint[0]-self.dx/6
             self.set_point[1]=self.prev_setpoint[1]-self.dy/1.25
             rospy.loginfo("R   F")
-        elif 1<self.obs_dist[regions["left"]]<7 and 1<self.obs_dist[regions["front"]]<10 and self.obs_dist[regions["right"]]>7 and self.obs_dist[regions["back"]]>10:
+        elif 1<self.obs_dist[regions["left"]]<6 and 1<self.obs_dist[regions["front"]]<6 and self.obs_dist[regions["right"]]>6 and self.obs_dist[regions["back"]]>6:
             self.set_point[0]=self.prev_setpoint[0]-self.dx/6
             self.set_point[1]=self.prev_setpoint[1]+self.dy/1.25
             rospy.loginfo("L   F")
 
-        elif 1<self.obs_dist[regions["left"]]<7 and self.obs_dist[regions["front"]]>10 and self.obs_dist[regions["right"]]>7 and self.obs_dist[regions["back"]]>10:
-            self.set_point[0]=self.prev_setpoint[0]+self.dx*1.25
-            self.set_point[1]=self.prev_setpoint[1]#+self.dy/1.25
+        elif 1<self.obs_dist[regions["left"]]<6 and self.obs_dist[regions["front"]]>6 and self.obs_dist[regions["right"]]>6 and self.obs_dist[regions["back"]]>6:
+            if self.dx > self.dy :
+                self.set_point[0]=self.prev_setpoint[0]+self.dx*6
+                self.set_point[1]=self.prev_setpoint[1]#-self.dy/1.25
+            else :
+                self.set_point[0]=self.prev_setpoint[0]+self.dy*6
+                self.set_point[1]=self.prev_setpoint[1]#-self.dy/1.25
             rospy.loginfo("   L   ")
-        elif 1<self.obs_dist[regions["right"]]<7 and self.obs_dist[regions["front"]]>10 and self.obs_dist[regions["left"]]>7 and self.obs_dist[regions["back"]]>10:
-            self.set_point[0]=self.prev_setpoint[0]+self.dx*1.25
-            self.set_point[1]=self.prev_setpoint[1]#-self.dy/1.25
+        elif 1<self.obs_dist[regions["right"]]<6 and self.obs_dist[regions["front"]]>6 and self.obs_dist[regions["left"]]>6 and self.obs_dist[regions["back"]]>6:
+            if self.dx > self.dy :
+                self.set_point[0]=self.prev_setpoint[0]+self.dx*6
+                self.set_point[1]=self.prev_setpoint[1]#-self.dy/1.25
+            else :
+                self.set_point[0]=self.prev_setpoint[0]+self.dy*6
+                self.set_point[1]=self.prev_setpoint[1]#-self.dy/1.25
             rospy.loginfo("   R  ")
 
-        elif 1<self.obs_dist[regions["front"]]<10 and self.obs_dist[regions["right"]]>7 and self.obs_dist[regions["left"]]>7 and self.obs_dist[regions["back"]]>10:
-            self.set_point[0]=self.prev_setpoint[0]#-self.dx/6
-            self.set_point[1]=self.prev_setpoint[1]+self.dy*6
+        elif 1<self.obs_dist[regions["front"]]<6 and self.obs_dist[regions["right"]]>6 and self.obs_dist[regions["left"]]>6 and self.obs_dist[regions["back"]]>6:
+            if self.dx > self.dy :
+                self.set_point[0]=self.prev_setpoint[0]#-self.dx/6
+                self.set_point[1]=self.prev_setpoint[1]+self.dx*6
+            else :
+                self.set_point[0]=self.prev_setpoint[0]#-self.dx/6
+                self.set_point[1]=self.prev_setpoint[1]+self.dy*6
             rospy.loginfo("   F***")
+        elif self.obs_dist[regions["front"]]>6 and self.obs_dist[regions["right"]]>6 and self.obs_dist[regions["left"]]>6 and 1<self.obs_dist[regions["back"]]<6:
+            if self.dx > self.dy :
+                self.set_point[0]=self.prev_setpoint[0]#-self.dx/6
+                self.set_point[1]=self.prev_setpoint[1]+self.dx*6
+            else:
+                self.set_point[0]=self.prev_setpoint[0]#-self.dx/6
+                self.set_point[1]=self.prev_setpoint[1]+self.dy*6                
+            rospy.loginfo("   F-***")
 
 
         
 
     
     def path_plan(self):
-        if ((self.obs_dist[0]<7 and self.obs_dist[0]>1)or (self.obs_dist[2]<7 and self.obs_dist[2]>1) or (self.obs_dist[3]<10 and self.obs_dist[3]>1)):
+        if ((self.obs_dist[0]<6 and self.obs_dist[0]>1)or (self.obs_dist[1]<6 and self.obs_dist[1]>1)or (self.obs_dist[2]<6 and self.obs_dist[2]>1) or (self.obs_dist[3]<6 and self.obs_dist[3]>1)):
             self.wall_foll_waypoint_gen()
             # rospy.logerr("wall following")
         else:
-            if (self.goal_point[0]-self.curr_point[0])<0:
-                self.set_point[0] = self.prev_setpoint[0] + self.dx
-            else:
-                self.set_point[0] = self.prev_setpoint[0] - self.dx
-            if (self.goal_point[1]-self.curr_point[1])>0:
-                self.set_point[1] = self.prev_setpoint[1] + self.dy
-            else:
-                self.set_point[1] = self.prev_setpoint[1] - self.dy
+            self.set_point[0] = self.prev_setpoint[0] + self.dx
+            self.set_point[1] = self.prev_setpoint[1] + self.dy
+
+        self.prev_setpoint[0] = self.set_point[0]
+        self.prev_setpoint[1] = self.set_point[1] 
             # rospy.logwarn("no obstacle")
 
         # print(self.set_point[0],self.set_point[1])

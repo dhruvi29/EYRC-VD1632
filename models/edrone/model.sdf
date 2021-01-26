@@ -96,7 +96,7 @@
         </plugin>
         <always_on>1</always_on>
         <update_rate>20</update_rate>
-        <visualize>false</visualize>
+        <visualize>true</visualize>
       </sensor>  
       <sensor name="range_finder_bottom" type="ray">
         <pose>0 0 0.25 0 1.570896 0</pose>

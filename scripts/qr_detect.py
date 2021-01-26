@@ -55,7 +55,7 @@ class image_proc():
 				qr_data[0] = float(qr_data[0])
 				qr_data[1] = float(qr_data[1])
 				qr_data[2] = float(qr_data[2])
-				#print(qr_data)
+				print(qr_data)
 				self.qr_val.latitude = qr_data[0]
 				self.qr_val.longitude = qr_data[1]
 				self.qr_val.altitude = qr_data[2]

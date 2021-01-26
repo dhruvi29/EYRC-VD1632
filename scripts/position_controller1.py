@@ -253,8 +253,8 @@ class edrone():
                 self.check_pick_gripper() ##change the goal point in gripper
                 self.goal_point= self.qrcode 
                 # self.QR()
-                print(self.goal_point)
-                r.sleep()
+                # print(self.goal_point)
+                # r.sleep()
                 self.change(1)
             else:
                 # self.drop_parcel()
@@ -263,13 +263,13 @@ class edrone():
     def check_pick_gripper(self):
         print(self.gripper)
         while self.gripper=="False":
-            print(self.gripper)
+            rospy.logwarn("gripping unavailable")
             continue
         res=GripperResponse()
         
         while not res.result:
             res = self.gripper_srv(True)
-            print("res",res)
+            rospy.loginfo("Pick up successful")
         self.isLoaded=True
 
     def wall_foll_waypoint_gen(self):

@@ -8,13 +8,14 @@ from cv_bridge import CvBridge, CvBridgeError
 from vitarana_drone.msg import *
 from numpy import * 
 import rospy 
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import LaserScan, NavSatFix
 x, y, w, h = 0.0,0.0,0.0,0.0
 marker_id = 1
 class detect():
 	
 	def __init__(self):
 		rospy.init_node('detect_marker_cascade', anonymous=True)
+		self.curr_point = [19.0,72.0, 8.440994388]
 		self.img_width = 400
 		self.hfov_rad = 1.3962634
 		self.focal_length = (self.img_width/2)/tan(self.hfov_rad/2)
@@ -34,9 +35,11 @@ class detect():
 
 
 		self.image_pub = rospy.Publisher("marker_image",Image,queue_size=1) 
-		
+
+		rospy.Subscriber('/edrone/gps', NavSatFix, self.gps_callback)		
 		self.image_sub = rospy.Subscriber("/edrone/camera/image_raw", Image, self.image_callback) 
 		rospy.Subscriber('/edrone/range_finder_bottom', LaserScan, self.range_finder_bottom_callback)
+		rospy.Subscriber('/altitude', Float32, self.altitude_value)
 		self.marker_data=[0,0.0,0.0]
 		self.Z_m = 0.0
 		
@@ -44,6 +47,14 @@ class detect():
 	def range_finder_bottom_callback(self, msg):
 		#assigning distance to obstacles as gotten by range_finder_bottom
 		self.Z_m = msg.ranges[0]
+
+	def gps_callback(self, msg):
+		self.curr_point[0] = msg.latitude
+		self.curr_point[1] = msg.longitude
+		self.curr_point[2] = msg.altitude		
+
+	def altitude_value(self,msg):
+		self.altitude = msg.data
 		
 	def image_callback(self, data):
 		try:
@@ -52,7 +63,7 @@ class detect():
 
 		except CvBridgeError as e:
 			print(e)
-		cv2.imshow("Image window", self.img)
+		cv2.imshow("Detection window", self.img)
 		cv2.waitKey(3)
 			
 		try:
@@ -71,13 +82,13 @@ class detect():
 			centre_x_pixel= (2*x+w)/2.0
 			centre_y_pixel= (2*y+h)/2.0
 
-			self.markerdata.err_x_m = (self.Center-centre_x_pixel)*self.Z_m/self.focal_length
-			self.markerdata.err_y_m = (self.Center-centre_y_pixel)*self.Z_m/self.focal_length
+			self.markerdata.err_x_m = (self.Center-centre_x_pixel)*(self.curr_point[2] - self.altitude)/self.focal_length
+			self.markerdata.err_y_m = (self.Center-centre_y_pixel)*(self.curr_point[2] - self.altitude)/self.focal_length
 			self.markerdata.marker_id = marker_id
 
 			# plt.imshow(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB))
 			# plt.show()
-			print(centre_x_pixel,centre_y_pixel)
+			print(self.markerdata.err_x_m,self.markerdata.err_y_m)
 			self.detected.publish(True)
 			#print(self.X, self.Y)
 		except Exception as e :
