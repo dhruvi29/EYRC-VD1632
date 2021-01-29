@@ -48,9 +48,9 @@ class edrone():
         # self.Kp = [5000*100,
         # self.Kd = [2000*1000,1486*1000, 1550.0*0.3]
         # self.Ki = [0, 0, 0*0.008]
-        self.Kp = [0.06*5000*176, 1243* 0.06*5000, 1082*0.06]
+        self.Kp = [0.06*4500*176, 1243* 0.06*4500, 1082*0.06]
         self.Ki = [0.0, 0.0, 0.0*0.008]
-        self.Kd = [0.3*20000*873, 2102*0.3*20000, 4476*0.3]
+        self.Kd = [0.3*19000*873, 2102*0.3*19000, 4476*0.3]
 
         # calculating errors
         self.error = [999.00, 999.0, 999.00]
@@ -237,11 +237,11 @@ class edrone():
         if 0<self.dist < 5 :
             self.t = self.dist*60
         elif 5 <= self.dist < 10 :
-            self.t = self.dist*45
+            self.t = self.dist*40
         elif 10 <= self.dist < 40 :
-            self.t = self.dist*30
+            self.t = self.dist*20
         else :
-            self.t = self.dist*10
+            self.t = self.dist*9
         self.dx = (self.goal_point[0] - self.set_point[0])/self.t
         self.dy = (self.goal_point[1] - self.set_point[1])/self.t
         # print(self.dx,self.dy)
