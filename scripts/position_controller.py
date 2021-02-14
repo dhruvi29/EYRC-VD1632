@@ -111,7 +111,7 @@ class edrone():
         self.isDetected=False
         self.stopDetection=False
         self.check=False
-        with open('/home/karthikswami/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
+        with open('/home/dhruvi/Desktop/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row[0] == "DELIVERY" :
@@ -159,7 +159,7 @@ class edrone():
         rospy.Subscriber('/pid_tuning_altitude', PidTune, self.altitude_set_pid)
         rospy.Subscriber('/edrone/gripper_check',String,self.gripper_callback)
         rospy.Subscriber('/edrone/range_finder_top', LaserScan, self.range_finder_top_callback)
-        rospy.Subscriber('/qrscan', qr_code, self.qr_callback)
+        # rospy.Subscriber('/qrscan', qr_code, self.qr_callback)
         rospy.Subscriber("/edrone/err_x_m", Float64, self.err_xm_callback)
         rospy.Subscriber("/edrone/err_y_m", Float64, self.err_ym_callback)
         rospy.Subscriber("/isDetected",Bool,self.detection_clbk)
