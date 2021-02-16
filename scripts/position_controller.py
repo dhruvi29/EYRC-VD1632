@@ -675,16 +675,8 @@ class edrone():
 
 # main driver code
 if __name__ == "__main__":
-    # print("init main")
-    # creating objects for different setpoints
     e_drone = edrone()
-    # e_drone.lat_setpoint=[18.9993676146,19.0004681325,19.0007030405]
-    # e_drone.long_setpoint=[71.9999999999,72.0000949773,71.9999429002]
-    # e_drone.alt_setpoint=[10.65496,16.660019864,22.1600026799]
-    # loc_count=-1
     while not rospy.is_shutdown():
-        # print(e_drone.gripper)
         e_drone.handler()
-        # e_drone.path_plan()
         e_drone.pid()
         e_drone.r.sleep()
