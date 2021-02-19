@@ -45,9 +45,9 @@ class edrone():
         # self.Kp = [5000*100,
         # self.Kd = [2000*1000,1486*1000, 1550.0*0.3]
         # self.Ki = [0, 0, 0*0.008]
-        self.Kp = [0.06*4500*176, 1243* 0.06*4500, 1500*0.06]
+        self.Kp = [0.06*5000*176, 1243* 0.06*5000, 1500*0.06]
         self.Ki = [0.0, 0.0, 0.0*0.008]
-        self.Kd = [0.3*19000*873, 2102*0.3*19000, 5000*0.3]
+        self.Kd = [0.3*19500*873, 2102*0.3*19500, 5000*0.3]
 
         # calculating errors
         self.error = [999.00, 999.0, 999.00]
@@ -376,7 +376,7 @@ class edrone():
                                 self.goal_point=self.initial_point  
                             else:
                                 self.set_point[0],self.set_point[1]= self.curr_point[0],self.curr_point[1]
-                                self.set_point[2] = self.set_point[2]+2
+                                self.set_point[2] = self.alt_setpoint[self.loc_count-1]+2
                                 self.set_point[2]=max(self.set_point[2],self.alt_setpoint[2]+2)#self.fly_hieght)
                                 self.nearby_box()
                             self.detect = False
