@@ -30,7 +30,7 @@ class edrone():
         self.curr_point = [18.9998887906,72.0002184403, 16.757981]
         self.set_point = [18.9998887906,72.0002184403, 16.757981]
         self.initial_point=[18.9998887906,72.0002184403, 16.757981]
-        self.goal_point = [18.999837387,72.000156707, 16.757981]
+        self.goal_point = [18.999837387,72.000156707, 19.757981]
         self.prev_setpoint = [18.9998887906,72.0002184403, 16.757981]
 
         # self.set_point[2]+=4.00
@@ -74,7 +74,7 @@ class edrone():
         self.fly_hieght=4.0000
 
         # state 1)takeoff 2)fly 3)land 4)gripper check,pick and drop,QR
-        self.drone_state=0
+        self.drone_state=1
 
         #path planning variables
         self.dist = 0.0
@@ -100,7 +100,7 @@ class edrone():
 
         #primary variables
         self.Delivery={'A1':[18.9998102845 ,72.000142461,16.757981],'A2':[18.9998102845 ,72.000156707,16.757981],'A3':[18.9998102845 ,72.000170953,16.757981],'B1':[18.999823836,72.000142461,16.757981],'B2':[18.999823836,72.000156707,16.757981],'B3':[18.999823836,72.000170953,16.757981],'C1':[18.999837387,72.000142461,16.757981],'C3':[18.999837387,72.000170953,16.757981]}
-        self.Return= {'X1 ': [18.9999367615,72.000142461,16.757981],'X2 ': [18.9999367615,72.000156707,16.757981],'X3': [18.9999367615,72.000170953,16.757981], 'Y1 ': [18.999950313,72.000142461,16.757981],'Y2 ': [18.999950313,72.000156707,16.757981],'Y3 ': [18.999950313,72.000170953,16.757981],'Z1 ': [18.999963864,72.000142461,16.757981], 'Z2': [18.999963864,72.000156707,16.757981],'Z3 ': [18.999963864,72.000170953,16.757981]}
+        self.Return= {'X1': [18.9999367615,72.000142461,16.757981],'X2': [18.9999367615,72.000156707,16.757981],'X3': [18.9999367615,72.000170953,16.757981], 'Y1': [18.999950313,72.000142461,16.757981],'Y2': [18.999950313,72.000156707,16.757981],'Y3': [18.999950313,72.000170953,16.757981],'Z1': [18.999963864,72.000142461,16.757981], 'Z2': [18.999963864,72.000156707,16.757981],'Z3': [18.999963864,72.000170953,16.757981]}
 
         #secondary variables
         self.alt = 0.0 ##range finder bottom altitude
@@ -185,6 +185,7 @@ class edrone():
         
     def gripper_callback(self,msg):
         self.gripper=msg.data
+
     def gps_callback(self, msg):
         self.curr_point[0] = msg.latitude
         self.curr_point[1] = msg.longitude
@@ -284,7 +285,6 @@ class edrone():
         else :
             self.t = self.dist*1.5
         if self.t == 0:
-            print("hua kya?")
             self.t = 1            
         self.dx = (self.goal_point[0] - self.set_point[0])/self.t
         self.dy = (self.goal_point[1] - self.set_point[1])/self.t
@@ -301,14 +301,8 @@ class edrone():
         i = 0
         self.n = n_dist.index(min(n_dist)) 
         n_dist = []  
-        self.goal_point[0],self.goal_point[1],self.goal_point[2] = float(self.ret_lat_setpoint[self.n]),float(self.ret_long_setpoint[self.n]),float(self.ret_alt_setpoint[self.n])+7
-        self.point.pop(self.n)
-        self.ret_lat_setpoint.pop(self.n)
-        self.ret_long_setpoint.pop(self.n)
-        self.ret_alt_setpoint.pop(self.n)
-        self.ret = True
 
-    def closest_box_delivery(self):
+    def box_delivery(self):
         global i
         i=0
         n_dist=[]
@@ -317,13 +311,12 @@ class edrone():
             n_dist.append(dist)
             i+=1
         i = 0
-        self.n = n_dist.index(min(n_dist)) 
+        self.loc_count=self.loc_count+1
+        if self.loc_count%2==0:
+            self.n = n_dist.index(max(n_dist))
+        else:
+            self.n = n_dist.index(min(n_dist)) 
         n_dist = []  
-        self.goal_point[0],self.goal_point[1],self.goal_point[2] = float(self.lat_setpoint[self.n]),float(self.long_setpoint[self.n]),float(self.alt_setpoint[self.n])+7
-        self.deliv_grid_point.pop(self.n)
-        self.lat_setpoint.pop(self.n)
-        self.long_setpoint.pop(self.n)
-        self.ret = False
 
     def path_plan(self):
         if ((self.obs_dist[0]<7 and self.obs_dist[0]>1) or (self.obs_dist[1]<7 and self.obs_dist[1]>1) or (self.obs_dist[2]<7 and self.obs_dist[2]>1) or (self.obs_dist[3]<7 and self.obs_dist[3]>1)):
@@ -426,30 +419,112 @@ class edrone():
             res = self.gripper_srv(True)
         self.isLoaded=True
 
+    def find_marker(self):
+        if not self.isDetected:
+            self.set_point[2]+=0.1
+            self.goal_point[2]+=0.1
+
+        else:
+            self.stopDetection=True
+            print("detection success")
+            self.goal_point[0] = self.curr_point[0]-self.err_x_m/110692.0702932625
+            self.goal_point[1] = self.curr_point[1]-self.err_y_m/105292.0089353767
+            self.distance()
+            if -0.1 < self.err_x_m < 0.1 and -0.1 < self.err_y_m < 0.1 :
+                self.stopDetection=False
+                self.change_state()
+
+            elif -0.3 < self.err_x_m < 0.3 and -0.3 < self.err_y_m < 0.3 :
+                self.set_point[2] = self.alt_setpoint[self.loc_count]+0.4
+
+
+    def load(self):
+        if self.gripper==False: return
+        res = self.gripper_srv(True)
+        if res.result:
+            self.isLoaded=True
+            self.change_state()
+        
+
+    def unload(self):
+        self.gripper_srv(False)
+        self.isLoaded=False
+        self.change_state()
+
     def change_state(self):
         ''' state 1=take off, state 2=fly state 3=land state 4=gripper check,pick drop '''
-
+        if self.drone_state==1:
+            self.distance()
+            self.drone_state=2
+            self.set_point[2]=max(self.set_point[2],self.goal_point[2]+4)
+        elif self.drone_state==2:
+            self.drone_state=3
+            self.error[2]=1
+            self.set_point[2]=self.goal_point[2]
+        elif self.drone_state==3:
+            self.drone_state=4
+        else:
+            self.drone_state=1
+            self.set_point[2]=self.set_point[2]+4
 
     def state1(self):
-        pass
+        print("error",self.error[2])
+        if self.error[2]<0.01:
+            if self.ret:
+                if self.isLoaded:
+                    print("return",self.point[self.n])
+                    self.goal_point=self.Return[self.point[self.n]]
+                    self.point.pop(self.n)
+                else:
+                    self.nearby_box_return()
+                    self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.ret_lat_setpoint[self.n],self.ret_long_setpoint[self.n],self.ret_alt_setpoint[self.n]
+                    self.ret_lat_setpoint.pop(self.n)
+                    self.ret_long_setpoint.pop(self.n)
+                    self.ret_alt_setpoint.pop(self.n)
+            else:
+                if self.isLoaded:
+                    self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[self.n],self.long_setpoint[self.n],self.alt_setpoint[self.n]
+                    self.lat_setpoint.pop(self.n)
+                    self.long_setpoint.pop(self.n)
+                    self.alt_setpoint.pop(self.n)
+                else:
+                    self.box_delivery()
+                    self.goal_point=self.Delivery[self.deliv_grid_point[self.n]]
+                    print("pickup",self.deliv_grid_point[self.n])
+                    self.deliv_grid_point.pop(self.n)
+            self.change_state()
     
     def state2(self):
-        pass
+        if not self.ret and self.isLoaded and abs(self.goal_point[0]-self.curr_point[0])<0.00000500 and abs(self.goal_point[1]-self.curr_point[1])<0.00000500:
+            self.find_marker()
+        elif abs(self.goal_point[0]-self.curr_point[0])<0.000000600 and abs(self.goal_point[1]-self.curr_point[1])<0.000000600:
+            self.change_state()
+        self.distance()
+        self.path_plan()
 
     def state3(self):
-        pass
+        if self.error[2]<0.01:
+            self.change_state()
 
     def state4(self):
-        pass
+        if self.isLoaded:
+            self.unload()
+            self.ret=not self.ret
+        else:
+            self.load()
 
     def handler(self):
         if self.drone_state==1:
+            print(self.drone_state)
             self.state1()
         elif self.drone_state==2:
+            print(self.drone_state)
             self.state2()
         elif self.drone_state==3:##land
+            print(self.drone_state)
             self.state3()
         elif self.drone_state==4: ##load unload
+            print(self.drone_state)
             self.state4()
 
 # main driver code
