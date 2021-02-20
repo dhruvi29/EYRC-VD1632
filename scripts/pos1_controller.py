@@ -323,9 +323,9 @@ class edrone():
         self.n_dist = []  
         self.goal_point[0],self.goal_point[1],self.goal_point[2] = float(self.ret_lat_setpoint[self.n]),float(self.ret_long_setpoint[self.n]),float(self.ret_alt_setpoint[self.n])+7
         self.grid.append(self.point[self.n])
-        self.point.pop(self.n)
-        self.ret_lat_setpoint.pop(self.n)
-        self.ret_long_setpoint.pop(self.n)         
+        # self.point.pop(self.n)
+        # self.ret_lat_setpoint.pop(self.n)
+        # self.ret_long_setpoint.pop(self.n)         
         self.ret = True
 
     # Function just to change states and provide goal point and set points
@@ -399,8 +399,8 @@ class edrone():
                             else:
                                 self.set_point[0],self.set_point[1]= self.curr_point[0],self.curr_point[1]
                                 # self.set_point[2] = self.alt_setpoint[self.loc_count-1]+2
-                                self.set_point[2]=max(self.set_point[2],self.alt_setpoint[n]+2)#self.fly_hieght)
                                 self.nearby_box()
+                                self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
                             self.detect = False
                             self.stopDetection=False
                             while i <100 :
@@ -413,8 +413,8 @@ class edrone():
                 if(abs(self.set_point[2]-self.curr_point[2])<0.2 ):
                     self.detect = True                   
             else:
-                # if abs(self.goal_point[0]-self.curr_point[0])<0.00025000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
-                #     self.set_point[2]=self.alt_setpoint[n]+7       
+                if abs(self.goal_point[0]-self.curr_point[0])<0.00025000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
+                    self.set_point[2]=self.alt_setpoint[n]+9.5    
                 self.path_plan()
         else:
             if abs(self.goal_point[0]-self.curr_point[0])<0.0002000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002000:
@@ -432,33 +432,11 @@ class edrone():
                         self.lat_setpoint.pop(n)
                         self.long_setpoint.pop(n)                     
                         self.alt_setpoint.pop(n)                                        
-                        self.ret_alt_setpoint.pop(self.n)                         
+                        # self.ret_alt_setpoint.pop(self.n)                         
                         self.gripper = False
                         if self.delivery == []: 
                             self.goal_point=self.initial_point                      
                             self.set_point[2]=max(self.set_point[2],self.alt_setpoint[2])#self.fly_hieght)                            
-
-                        # elif self.loc_count == 2: 
-                        #     self.goal_point=self.Delivery['B1'] 
-                        #     self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
-                        # elif self.loc_count == 3: 
-                        #     self.goal_point=self.Delivery['C3'] 
-                        #     self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
-                        # elif self.loc_count == 4: 
-                        #     self.goal_point=self.Delivery['C1'] 
-                        #     self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
-                        # elif self.loc_count == 5: 
-                        #     self.goal_point=self.Delivery['A1'] 
-                        #     self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
-                        # elif self.loc_count == 6: 
-                        #     self.goal_point=self.Delivery['A3'] 
-                        #     self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
-                        # elif self.loc_count == 7: 
-                        #     self.goal_point=self.Delivery['B3'] 
-                        #     self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
-                        # elif self.loc_count == 8: 
-                        #     self.goal_point=self.Delivery['A2'] 
-                        #     self.set_point[2]=max(self.set_point[2],self.goal_point[2])#self.fly_hieght)
                         else:
                             self.box_delivery()
                             # self.goal_point=self.Delivery[self.delivery[self.n]] 
@@ -489,13 +467,13 @@ class edrone():
                 while self.grip_check == True:
                     if self.gripper == "True":
                         if self.ret == False:
-                            self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[self.n]+self.fly_hieght)
+                            self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[n]+self.fly_hieght)
                             print(self.set_point[2])
                             self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[n],self.long_setpoint[n],self.alt_setpoint[n]+10
                             self.grip_check = False
                             break
                         else:
-                            self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[self.loc_count]+self.fly_hieght)
+                            self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[n]+self.fly_hieght)
                             print(self.set_point[2])
                             self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.Return[self.point[self.n]][0],self.Return[self.point[self.n]][1],self.Return[self.point[self.n]][2]+10
                             self.grip_check = False

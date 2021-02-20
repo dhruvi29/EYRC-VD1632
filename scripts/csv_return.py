@@ -18,7 +18,7 @@ with open('manifest.csv', 'r') as file:
         if row[0] == "RETURN " :
             point.append(row[2])
             row.pop(0)
-            # print(row)
+            print(row)
             row =row[0].split(";")
             # print(row)        
             lat_setpoint.append(row[0])
