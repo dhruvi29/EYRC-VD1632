@@ -283,7 +283,7 @@ class edrone():
         else :
             self.t = self.dist*5
         if self.t == 0:
-            print("hua kya?")
+            # print("hua kya?")
             self.t = 1            
         self.dx = (self.goal_point[0] - self.set_point[0])/self.t
         self.dy = (self.goal_point[1] - self.set_point[1])/self.t
@@ -383,7 +383,7 @@ class edrone():
                     if -0.3 < self.err_x_m < 0.3 and -0.3 < self.err_y_m < 0.3 :
                         self.set_point[2] = self.alt_setpoint[n]+0.4
                         # self.set_point[2] = self.set_point[2]-0.1
-                        print(".....................................................................")
+                        # print(".....................................................................")
                         if abs(self.set_point[2]-self.curr_point[2]) < 0.2:
                         # if abs(self.curr_point[2]-self.alt_setpoint[self.loc_count]) < 0.5:
                             self.gripper_srv(False)
@@ -408,7 +408,7 @@ class edrone():
                             i = 0    
                             self.drone_state=1
             elif abs(self.goal_point[0]-self.curr_point[0])<0.00000500 and abs(self.goal_point[1]-self.curr_point[1])<0.00000500:
-                rospy.logwarn("Kay challay")
+                # rospy.logwarn("Kay challay")
                 self.altitude_pub.publish(self.alt_setpoint[n])
                 if(abs(self.set_point[2]-self.curr_point[2])<0.2 ):
                     self.detect = True                   
@@ -426,7 +426,7 @@ class edrone():
                 if abs(self.goal_point[0]-self.curr_point[0])<0.000000600 and abs(self.goal_point[1]-self.curr_point[1])<0.000000600:
                     self.set_point[2] = self.Return[self.point[self.n]][2]+0.3
                     if abs(self.set_point[2]-self.curr_point[2])<0.01:
-                        print("Kar re kuch")
+                        # print("Kar re kuch")
                         self.ret = False
                         self.gripper_srv(False) 
                         self.lat_setpoint.pop(n)
@@ -461,25 +461,25 @@ class edrone():
             self.drone_state=1
         elif self.drone_state==1:
             self.isLoaded = False
-            rospy.loginfo("taking off")
+            # rospy.loginfo("taking off")
             if abs(self.error[2])<0.1:
                 self.prev_setpoint[0],self.prev_setpoint[1],self.prev_setpoint[2] = self.set_point[0],self.set_point[1],self.set_point[2]
                 while self.grip_check == True:
                     if self.gripper == "True":
                         if self.ret == False:
                             self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[n]+self.fly_hieght)
-                            print(self.set_point[2])
+                            # print(self.set_point[2])
                             self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[n],self.long_setpoint[n],self.alt_setpoint[n]+10
                             self.grip_check = False
                             break
                         else:
                             self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[n]+self.fly_hieght)
-                            print(self.set_point[2])
+                            # print(self.set_point[2])
                             self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.Return[self.point[self.n]][0],self.Return[self.point[self.n]][1],self.Return[self.point[self.n]][2]+10
                             self.grip_check = False
                             break                            
                     else:
-                        print("Nahi hua re")
+                        # print("Nahi hua re")
                         continue          
                 self.distance()                
                 self.change(2)
@@ -505,7 +505,7 @@ class edrone():
                 self.change(4)   
         elif self.drone_state==4: ##load unload
             if not self.isLoaded:    
-                print("Kuch hint de de")      
+                # print("Kuch hint de de")      
                 self.check_pick_gripper()                
                 self.grip_check = True ##change the goal point in gripper
                 self.drone_state=1
@@ -603,7 +603,7 @@ class edrone():
             self.prev_setpoint[1] = self.set_point[1]             
         else:
             if self.check == True:
-                print("Aamchi aai tumchi aai veermata jijabai")
+                # print("Aamchi aai tumchi aai veermata jijabai")
                 self.sensor_reading()
                 # if self.sensor == "F or B":
                 #     if abs(self.set_point[0]-self.curr_point[0]) < 0.000010000 :
@@ -615,11 +615,11 @@ class edrone():
                 #         self.check = False
                 # elif self.sensor == "L or R":
                 if abs(self.set_point[1]-self.curr_point[1]) < 0.000005000 :
-                    print("Oye Oye")
+                    # print("Oye Oye")
                     self.prev_setpoint[0] = self.set_point[0]
                     self.prev_setpoint[1] = self.set_point[1]                     
                     self.distance()
-                    print(self.dist)
+                    # print(self.dist)
                     self.check = False
 
             else :
