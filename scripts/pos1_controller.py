@@ -414,7 +414,7 @@ class edrone():
                     self.detect = True                   
             else:
                 if abs(self.goal_point[0]-self.curr_point[0])<0.00025000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
-                    self.set_point[2]=self.alt_setpoint[n]+9.5    
+                    self.set_point[2]=self.alt_setpoint[n]+11    
                 self.path_plan()
         else:
             if abs(self.goal_point[0]-self.curr_point[0])<0.0002000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002000:
@@ -469,13 +469,13 @@ class edrone():
                         if self.ret == False:
                             self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[n]+self.fly_hieght)
                             # print(self.set_point[2])
-                            self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[n],self.long_setpoint[n],self.alt_setpoint[n]+10
+                            self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.lat_setpoint[n],self.long_setpoint[n],self.alt_setpoint[n]+15
                             self.grip_check = False
                             break
                         else:
                             self.set_point[0],self.set_point[1],self.set_point[2]=self.curr_point[0],self.curr_point[1],max(self.set_point[2],self.alt_setpoint[n]+self.fly_hieght)
                             # print(self.set_point[2])
-                            self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.Return[self.point[self.n]][0],self.Return[self.point[self.n]][1],self.Return[self.point[self.n]][2]+10
+                            self.goal_point[0],self.goal_point[1],self.goal_point[2]=self.Return[self.point[self.n]][0],self.Return[self.point[self.n]][1],self.Return[self.point[self.n]][2]+15
                             self.grip_check = False
                             break                            
                     else:
