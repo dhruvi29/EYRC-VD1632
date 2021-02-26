@@ -43,9 +43,15 @@ class edrone():
         # setting PID constants based on tuning
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.Kp = [0.06*5100*176, 1243* 0.06*5100, 1500*0.06]
         self.Ki = [0.0, 0.0, 0.0*0.008]
         self.Kd = [0.3*20000*873, 2102*0.3*20000, 5500*0.3]
+=======
+        self.Kp = [0.06*5000*176, 1243* 0.06*5000, 1500*0.06]
+        self.Ki = [0.0, 0.0, 0.0*0.008]
+        self.Kd = [0.3*21000*873, 2102*0.3*21000, 5300*0.3]
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
         self.Kp = [0.06*5000*176, 1243* 0.06*5000, 1500*0.06]
         self.Ki = [0.0, 0.0, 0.0*0.008]
@@ -116,7 +122,11 @@ class edrone():
         # Getting delivery and return coordinates from csv file and storing it in lists
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         with open('/home/karthikswami/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
+=======
+        with open('/home/dhairya/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
         with open('/home/dhairya/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -129,7 +139,10 @@ class edrone():
                     row.pop(0)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     # if row[0]!="B2":
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
@@ -141,8 +154,11 @@ class edrone():
                     self.alt_setpoint.append(float(row[2]))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     # else:
                     #     continue
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
@@ -165,7 +181,11 @@ class edrone():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         with open('/home/karthikswami/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
+=======
+        with open('/home/dhairya/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
         with open('/home/dhairya/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -186,9 +206,15 @@ class edrone():
         sorted_delivery = sorted(self.seq_delivery_dist.values(),reverse=True)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         for n1 in sorted_delivery:
             for keys in self.seq_delivery_dist.keys():
                 if  self.seq_delivery_dist[keys] == n1:
+=======
+        for n in sorted_delivery:
+            for keys in self.seq_delivery_dist.keys():
+                if  self.seq_delivery_dist[keys] == n:
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
         for n in sorted_delivery:
             for keys in self.seq_delivery_dist.keys():
@@ -212,6 +238,7 @@ class edrone():
         sorted_return = sorted(self.seq_return_dist.values())
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         for n1 in sorted_return:
             for keys in self.seq_return_dist.keys():
                 if  self.seq_return_dist[keys] == n1:
@@ -228,6 +255,8 @@ class edrone():
 =======
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
         for n in sorted_return:
             for keys in self.seq_return_dist.keys():
                 if  self.seq_return_dist[keys] == n:
@@ -242,6 +271,9 @@ class edrone():
                 writer.writerow(["RETURN",self.seq_return[self.sorted_return_index[i]][0],self.seq_return[self.sorted_return_index[i]][1],self.seq_return[self.sorted_return_index[i]][2],self.sorted_return_index[i]])
                 print("RETURN",self.sorted_return_index[i])
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -250,6 +282,7 @@ class edrone():
         self.drone_cmd_pub = rospy.Publisher('/drone_command', edrone_cmd, queue_size=1)
 
         # The below can be uncommented while tuning latitude, longitude and altitude->
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         self.latitude_error_pub = rospy.Publisher('/latitude_error', Float32, queue_size=1)
@@ -265,6 +298,8 @@ class edrone():
 =======
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
         # self.latitude_error_pub = rospy.Publisher('/latitude_error', Float32, queue_size=1)
         # self.longitude_error_pub = rospy.Publisher('/longitude_error', Float32, queue_size=1)
         # self.altitude_error_pub = rospy.Publisher('/altitude_error', Float32, queue_size=1)
@@ -276,6 +311,9 @@ class edrone():
         # rospy.Subscriber('/pid_tuning_roll', PidTune, self.longitude_set_pid) 
         # rospy.Subscriber('/pid_tuning_altitude', PidTune, self.altitude_set_pid)
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -325,6 +363,7 @@ class edrone():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     def latitude_set_pid(self, msg):
         self.Kp[0] = msg.Kp * (200)
         self.Ki[0] = msg.Ki * 10
@@ -342,6 +381,8 @@ class edrone():
 =======
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
     # def latitude_set_pid(self, msg):
     #     self.Kp[0] = msg.Kp * (100)
     #     self.Ki[0] = msg.Ki * 10
@@ -357,6 +398,9 @@ class edrone():
     #     self.Ki[2] = msg.Ki * 0.008
     #     self.Kd[2] = msg.Kd * 0.3
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -413,9 +457,15 @@ class edrone():
         # The below can be uncommented while tuning 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.latitude_error_pub.publish(self.error[0])
         self.longitude_error_pub.publish(self.error[1])
         self.altitude_error_pub.publish(self.error[2])
+=======
+        # self.latitude_error_pub.publish(self.error[0]*1000000)
+        # self.longitude_error_pub.publish(self.error[1])
+        # self.altitude_error_pub.publish(self.error[2])
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
         # self.latitude_error_pub.publish(self.error[0]*1000000)
         # self.longitude_error_pub.publish(self.error[1])
@@ -431,6 +481,7 @@ class edrone():
     def distance(self):
         self.dist = math.sqrt(math.pow(110692.0702932625 * (self.goal_point[0] - self.set_point[0]) , 2) + math.pow(105292.0089353767 * (self.goal_point[1] - self.set_point[1]) , 2))
         if 0<self.dist < 5 :
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             self.t = self.dist*50      
@@ -451,6 +502,8 @@ class edrone():
 =======
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
             self.t = self.dist*70       
         elif 5 <= self.dist < 10 :
             self.t = self.dist*20
@@ -467,6 +520,9 @@ class edrone():
         else :
             self.t = self.dist*4
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -482,7 +538,10 @@ class edrone():
         n_dist=[]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         print(self.delivery)
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
@@ -570,8 +629,13 @@ class edrone():
                     self.path_plan()
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     # if abs(self.goal_point[0]-self.curr_point[0])<0.00003000 and abs(self.goal_point[1]-self.curr_point[1])<0.00003000:
                     #     self.set_point[2] = self.alt_setpoint[n]+7                       
+=======
+                    # if -1 < self.err_x_m < 1 and -1 < self.err_y_m < 1 :
+                    #     self.set_point[2] = self.alt_setpoint[self.loc_count]+5                        
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
                     # if -1 < self.err_x_m < 1 and -1 < self.err_y_m < 1 :
                     #     self.set_point[2] = self.alt_setpoint[self.loc_count]+5                        
@@ -606,6 +670,7 @@ class edrone():
                             self.drone_state=1
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             elif abs(self.goal_point[0]-self.curr_point[0])<0.00001500 and abs(self.goal_point[1]-self.curr_point[1])<0.00001500:
                 self.altitude_pub.publish(self.alt_setpoint[n])
                 if(abs(self.set_point[2]-self.curr_point[2])<0.3 ):
@@ -623,6 +688,8 @@ class edrone():
 =======
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
             elif abs(self.goal_point[0]-self.curr_point[0])<0.00000500 and abs(self.goal_point[1]-self.curr_point[1])<0.00000500:
                 self.altitude_pub.publish(self.alt_setpoint[n])
                 if(abs(self.set_point[2]-self.curr_point[2])<0.2 ):
@@ -634,6 +701,9 @@ class edrone():
         else:
             if abs(self.goal_point[0]-self.curr_point[0])<0.0002000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002000:
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -644,7 +714,11 @@ class edrone():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if abs(self.goal_point[0]-self.curr_point[0])<0.000002000 and abs(self.goal_point[1]-self.curr_point[1])<0.000002000:
+=======
+                if abs(self.goal_point[0]-self.curr_point[0])<0.000000600 and abs(self.goal_point[1]-self.curr_point[1])<0.000000600:
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
                 if abs(self.goal_point[0]-self.curr_point[0])<0.000000600 and abs(self.goal_point[1]-self.curr_point[1])<0.000000600:
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -692,6 +766,7 @@ class edrone():
                 self.prev_setpoint[0],self.prev_setpoint[1],self.prev_setpoint[2] = self.set_point[0],self.set_point[1],self.set_point[2]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 # while self.grip_check == True:
                 #     if self.gripper == "True":
                 #         if self.ret == False:
@@ -711,6 +786,8 @@ class edrone():
 =======
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
                 while self.grip_check == True:
                     if self.gripper == "True":
                         if self.ret == False:
@@ -728,6 +805,9 @@ class edrone():
                     else:
                         continue          
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
+=======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -748,7 +828,11 @@ class edrone():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     if abs(self.goal_point[0]-self.curr_point[0])<0.000001500 and abs(self.goal_point[1]-self.curr_point[1])<0.000001500:
+=======
+                    if abs(self.goal_point[0]-self.curr_point[0])<0.000000600 and abs(self.goal_point[1]-self.curr_point[1])<0.000000600:
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
                     if abs(self.goal_point[0]-self.curr_point[0])<0.000000600 and abs(self.goal_point[1]-self.curr_point[1])<0.000000600:
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
@@ -767,6 +851,7 @@ class edrone():
                 self.grip_check = True ##change the goal point in gripper
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 while self.grip_check == True:
                     if self.gripper == "True":
                         if self.ret == False:
@@ -783,6 +868,8 @@ class edrone():
                             break                            
                     else:
                         continue                 
+=======
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
@@ -916,7 +1003,11 @@ if __name__ == "__main__":
         e_drone.pid()
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         e_drone.r.sleep()
+=======
+        e_drone.r.sleep()
+>>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
 =======
         e_drone.r.sleep()
 >>>>>>> 53f69b2110d5184ae3b4685cebf66d78f522ea5a
