@@ -152,14 +152,16 @@ class edrone():
                 m.append(math.sqrt(math.pow(110692.0702932625 * (self.seq_delivery[key][0] - val2[0]) , 2) + math.pow(105292.0089353767 * (self.seq_delivery[key][1] - val2[1]) , 2)))
             k = m.index(min(m))
             self.seq_return_dist[self.seq_return2.keys()[k]] = min(m)
-            del self.seq_return2[self.seq_return2.keys()[k]]
+            self.sorted_return_index.append(self.seq_return2.keys()[k])
+            self.seq_return2.pop(self.seq_return2.keys()[k])            
+            print(self.seq_return2)
             m = []
-        sorted_return = sorted(self.seq_return_dist.values())
-        for n1 in sorted_return:
-            for keys in self.seq_return_dist.keys():
-                if  self.seq_return_dist[keys] == n1:
-                    self.sorted_return_index.append(keys)
-                    break 
+        # sorted_return = sorted(self.seq_return_dist.values())
+        # for n1 in sorted_return:
+        #     for keys in self.seq_return_dist.keys():
+        #         if  self.seq_return_dist[keys] == n1:
+        #             self.sorted_return_index.append(keys)
+        #             break 
 
         print("SORTED DELIVERY: ",self.sorted_delivery_index)
         print("SORTED RETURN: ",self.sorted_return_index)    
@@ -431,7 +433,7 @@ class edrone():
         else:
             # if abs(self.goal_point[0]-self.curr_point[0])<0.0002500 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
             #     self.set_point[2]=self.Return[self.sorted_return_index[self.n]][2]+self.fly_hieght                    
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0002500 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
+            if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.0001500:
                 self.set_point[0]=self.goal_point[0]
                 self.set_point[1]=self.goal_point[1]
 

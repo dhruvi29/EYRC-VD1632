@@ -17,15 +17,15 @@ with open('manifest.csv', 'r') as file:
         if row[0] == "DELIVERY" :
             row.pop(0)
             # print(row)
-            if row[0]!="B2":
-                row =row[1].split(";")
-                # print(row)        
-                lat_setpoint.append(row[0])
-                long_setpoint.append(row[1])
-                alt_setpoint.append(row[2])
-            else:
-                continue
-    while i<8:
+            # if row[0]!="B2":
+            row =row[1].split(";")
+            # print(row)        
+            lat_setpoint.append(row[0])
+            long_setpoint.append(row[1])
+            alt_setpoint.append(row[2])
+            # else:
+            #     continue
+    while i<9:
         dist = math.sqrt(math.pow(110692.0702932625 * (float(lat_setpoint[i]) - float(build_lat[i])) , 2) + math.pow(105292.0089353767 * (float(long_setpoint[i]) - float(build_long[i])) , 2))
         # print(dist)
         distancee.append(dist)
