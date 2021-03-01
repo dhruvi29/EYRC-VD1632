@@ -158,10 +158,10 @@ class edrone():
                 self.seq_return2.pop(self.seq_return2.keys()[k])
             k = m.index(min(m))
             self.seq_return_dist[self.seq_return2.keys()[k]] = min(m)
-            del self.seq_return2[self.seq_return2.keys()[k]]
+            self.sorted_return_index.append(self.seq_return2.keys()[k])
+            self.seq_return2.pop(self.seq_return2.keys()[k])            
+            print(self.seq_return2)
             m = []
-
-
         # sorted_return = sorted(self.seq_return_dist.values())
         # for n1 in sorted_return:
         #     for keys in self.seq_return_dist.keys():
@@ -439,7 +439,7 @@ class edrone():
         else:
             # if abs(self.goal_point[0]-self.curr_point[0])<0.0002500 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
             #     self.set_point[2]=self.Return[self.sorted_return_index[self.n]][2]+self.fly_hieght                    
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0002500 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
+            if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.0001500:
                 self.set_point[0]=self.goal_point[0]
                 self.set_point[1]=self.goal_point[1]
 
