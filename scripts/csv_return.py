@@ -11,7 +11,7 @@ build_lat = ['18.9999367615','18.999950313' ,'18.999963864' ,'18.999963864','18.
 build_long = ['72.000142461','72.000142461','72.000170953','72.000156707','72.000142461','72.000156707','72.000170953','72.000156707','72.000170953']
 i = 0
 dist = 0
-with open('manifest.csv', 'r') as file:
+with open('original.csv', 'r') as file:
     reader = csv.reader(file)
     for row in reader:
         # print(row)
