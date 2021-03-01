@@ -41,15 +41,18 @@ class edrone():
         self.base_value = 1500
 
         # setting PID constants based on tuning
-        self.Kp = [0.06*5100*176, 1243* 0.06*5100, 1500*0.06]
-        self.Ki = [0.0, 0.0, 0.0*0.008]
-        self.Kd = [0.3*20500*873, 2102*0.3*20500, 5500*0.3]
+        # self.Kp = [0.06*5100*176, 1243* 0.06*5100, 1500*0.06]
+        # self.Ki = [0.0, 0.0, 0.0*0.008]
+        # self.Kd = [0.3*20500*873, 2102*0.3*20500, 5500*0.3]
         # self.Kp = [0.0, 0.0, 1500*0.06]
         # self.Ki = [0.0, 0.0, 0.0*0.008]
         # self.Kd = [0.0, 0.0, 5500*0.3]
         # self.Kp = [372*200, 502*200, 1500*0.06]
         # self.Ki = [0.0, 0.0, 0.0*0.008]
         # self.Kd = [764*10000, 831*10000, 5500*0.3]
+        self.Kp = [450*200, 425*200, 1500*0.06]
+        self.Ki = [0.0, 0.0, 0.0*0.008]
+        self.Kd = [735*10000, 750*10000, 5500*0.3]
 
         # calculating errors
         self.error = [999.00, 999.0, 999.00]
@@ -322,20 +325,20 @@ class edrone():
     # function to give setpoints with respect to the distance between initial and final points
     def distance(self):
         self.dist = math.sqrt(math.pow(110692.0702932625 * (self.goal_point[0] - self.set_point[0]) , 2) + math.pow(105292.0089353767 * (self.goal_point[1] - self.set_point[1]) , 2))
-        if 0<self.dist < 10 :
-            self.t = self.dist*50     
+        if 0<self.dist < 5 :
+            self.t = self.dist*40  
         elif 5 <= self.dist < 10 :
             self.t = self.dist*15
         elif 10 <= self.dist < 40 :
-            self.t = self.dist*8
+            self.t = self.dist*6.5
         elif 40 <= self.dist < 80 :
-            self.t = self.dist*6
+            self.t = self.dist*4.5
         elif 80 <= self.dist < 120 :
-            self.t = self.dist*4
-        elif 120 <= self.dist < 160 :
-            self.t = self.dist*3.5
-        elif 160 <= self.dist < 200 :
             self.t = self.dist*3
+        elif 120 <= self.dist < 160 :
+            self.t = self.dist*2.5
+        elif 160 <= self.dist < 200 :
+            self.t = self.dist*2.5
         else :
             self.t = self.dist*2
         if self.t == 0:
@@ -431,9 +434,9 @@ class edrone():
                 else:                  
                     self.path_plan()
         else:
-            # if abs(self.goal_point[0]-self.curr_point[0])<0.0002500 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
-            #     self.set_point[2]=self.Return[self.sorted_return_index[self.n]][2]+self.fly_hieght                    
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.0001500:
+            if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002000:
+                self.set_point[2]=self.Return[self.sorted_return_index[self.n]][2]+7                   
+            if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.00012500:
                 self.set_point[0]=self.goal_point[0]
                 self.set_point[1]=self.goal_point[1]
 
