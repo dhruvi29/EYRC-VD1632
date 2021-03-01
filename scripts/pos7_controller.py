@@ -99,7 +99,7 @@ class edrone():
         self.grid = []
         self.Delivery= {'A1': [18.9998102845 ,72.000142461,16.757981],'A2': [18.9998102845 ,72.000156707,16.757981],'A3': [18.9998102845 ,72.000170953,16.757981], 'B1': [18.999823836,72.000142461,16.757981],'B2': [18.999823836,72.000156707,16.757981],'B3': [18.999823836,72.000170953,16.757981],'C1': [18.999837387,72.000142461,16.757981], 'C2': [18.999837387,72.000156707, 16.757981],'C3': [18.999837387,72.000170953,16.757981]}
 
-        self.Return= {'X1 ': [18.9999367615,72.000142461,16.757981],'X2 ': [18.9999367615,72.000156707,16.757981],'X3': [18.9999367615,72.000170953,16.757981], 'Y1 ': [18.999950313,72.000142461,16.757981],'Y2 ': [18.999950313,72.000156707,16.757981],'Y3 ': [18.999950313,72.000170953,16.757981],'Z1 ': [18.999963864,72.000142461,16.757981], 'Z2': [18.999963864,72.000156707,16.757981],'Z3 ': [18.999963864,72.000170953,16.757981]}
+        self.Return= {'X1': [18.9999367615,72.000142461,16.757981],'X2': [18.9999367615,72.000156707,16.757981],'X3': [18.9999367615,72.000170953,16.757981], 'Y1': [18.999950313,72.000142461,16.757981],'Y2': [18.999950313,72.000156707,16.757981],'Y3': [18.999950313,72.000170953,16.757981],'Z1': [18.999963864,72.000142461,16.757981], 'Z2': [18.999963864,72.000156707,16.757981],'Z3': [18.999963864,72.000170953,16.757981]}
         self.loc_count=0
         self.ret_loc_count=0
         self.isDetected=False
@@ -122,14 +122,15 @@ class edrone():
         self.sorted_return_index = []
 
         # reading manifest.csv file
-        with open('/home/karthikswami/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
+        with open('/home/dhruvi/Desktop/catkin_ws/src/vitarana_drone/scripts/original.csv', 'r') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row[0]=="DELIVERY":
                     self.seq_delivery[row[1]] = [float(r) for r in row[2].split(";")]
 
-                elif row[0]=="RETURN ":    
+                elif row[0]=="RETURN":    
                     self.seq_return[row[2]] = [float(r) for r in row[1].split(";")]
+        
 
         # sequencing deliveries as per distance between grid and approximate building point(largest first)
         for (key, val) in self.seq_delivery.items():
@@ -148,14 +149,19 @@ class edrone():
         self.seq_return2 = self.seq_return.copy()
         # finding nearest box from the terrace of a building
         for key in self.sorted_delivery_index:
+            # k=0
             for key2, val2 in self.seq_return2.items():  
+                print(m)
                 m.append(math.sqrt(math.pow(110692.0702932625 * (self.seq_delivery[key][0] - val2[0]) , 2) + math.pow(105292.0089353767 * (self.seq_delivery[key][1] - val2[1]) , 2)))
+                self.seq_return_dist[self.seq_return2.keys()[k]] = min(m)
+                self.sorted_return_index.append(self.seq_return2.keys()[k])
+                self.seq_return2.pop(self.seq_return2.keys()[k])
             k = m.index(min(m))
             self.seq_return_dist[self.seq_return2.keys()[k]] = min(m)
             del self.seq_return2[self.seq_return2.keys()[k]]
             m = []
 
-            
+
         # sorted_return = sorted(self.seq_return_dist.values())
         # for n1 in sorted_return:
         #     for keys in self.seq_return_dist.keys():
@@ -166,7 +172,7 @@ class edrone():
         print("SORTED DELIVERY: ",self.sorted_delivery_index)
         print("SORTED RETURN: ",self.sorted_return_index)    
 
-        with open('/home/karthikswami/catkin_ws/src/vitarana_drone/scripts/sequenced_manifest.csv', 'w') as file:
+        with open('/home/dhruvi/Desktop/catkin_ws/src/vitarana_drone/scripts/sequenced_manifest_orignal.csv', 'w') as file:
             writer = csv.writer(file)
             for c in range(len(self.sorted_delivery_index)):
                 s = ";".join([str(self.seq_delivery[self.sorted_delivery_index[c]][0]),str(self.seq_delivery[self.sorted_delivery_index[c]][1]),str(self.seq_delivery[self.sorted_delivery_index[c]][2])])

@@ -117,7 +117,7 @@ class edrone():
         self.deliv_grid_point=[]
        
 
-        with open('/home/karthikswami/catkin_ws/src/vitarana_drone/scripts/manifest.csv', 'r') as file:
+        with open('/home/dhruvi/catkin_ws/src/vitarana_drone/scripts/original.csv', 'r') as file:
             reader = csv.reader(file)
             for row in reader:
                 if row[0] == "DELIVERY" :
