@@ -154,12 +154,14 @@ class edrone():
             self.seq_return_dist[self.seq_return2.keys()[k]] = min(m)
             del self.seq_return2[self.seq_return2.keys()[k]]
             m = []
-        sorted_return = sorted(self.seq_return_dist.values())
-        for n1 in sorted_return:
-            for keys in self.seq_return_dist.keys():
-                if  self.seq_return_dist[keys] == n1:
-                    self.sorted_return_index.append(keys)
-                    break 
+
+            
+        # sorted_return = sorted(self.seq_return_dist.values())
+        # for n1 in sorted_return:
+        #     for keys in self.seq_return_dist.keys():
+        #         if  self.seq_return_dist[keys] == n1:
+        #             self.sorted_return_index.append(keys)
+        #             break 
 
         print("SORTED DELIVERY: ",self.sorted_delivery_index)
         print("SORTED RETURN: ",self.sorted_return_index)    
