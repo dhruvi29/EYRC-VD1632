@@ -7,4 +7,15 @@
         </include>
         <node name="throttler_model_states" type="throttle" pkg="topic_tools" args="messages /gazebo/model_states 10"/>
         <node name="gripper_service" type="gripper_service.py" pkg="vitarana_drone"/>
+        <node name="detect_marker_cascade" type="detect_marker_cascade.py" pkg="vitarana_drone"/>
+
+    <arg name="record" default="false"/>
+    <arg name="duration" default="720"/>
+    <arg name="rec_name" default="Task_4_VD.bag"/>  
+
+    <group if="$(arg record)">
+    <node name="rosbag_record_position" pkg="rosbag" type="record"
+       args="record -O $(find vitarana_drone)/bag_files/$(arg rec_name) --duration=$(arg duration) /gazebo/model_states_throttle" output="screen"/>
+
+    </group>    
 </launch>
