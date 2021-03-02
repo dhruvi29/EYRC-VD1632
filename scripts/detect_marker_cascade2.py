@@ -31,7 +31,7 @@ class detect():
 		self.markerdata.marker_id = 1
 		self.Center = self.img_width/2
 		#cv2.imread('test_2.png')  # Initialising with a Source image
-		self.logo_cascade = cv2.CascadeClassifier('/home/karthikswami/catkin_ws/src/vitarana_drone/intro_cascade_classifiers_training_and_usage/data/cascade.xml')
+		self.logo_cascade = cv2.CascadeClassifier('/home/dhruvi/Desktop/catkin_ws/src/vitarana_drone/intro_cascade_classifiers_training_and_usage/data/cascade.xml')
 
 
 		self.image_pub = rospy.Publisher("marker_image",Image,queue_size=1) 

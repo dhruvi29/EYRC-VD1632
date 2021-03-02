@@ -149,13 +149,8 @@ class edrone():
         self.seq_return2 = self.seq_return.copy()
         # finding nearest box from the terrace of a building
         for key in self.sorted_delivery_index:
-            # k=0
             for key2, val2 in self.seq_return2.items():  
-                print(m)
                 m.append(math.sqrt(math.pow(110692.0702932625 * (self.seq_delivery[key][0] - val2[0]) , 2) + math.pow(105292.0089353767 * (self.seq_delivery[key][1] - val2[1]) , 2)))
-                self.seq_return_dist[self.seq_return2.keys()[k]] = min(m)
-                self.sorted_return_index.append(self.seq_return2.keys()[k])
-                self.seq_return2.pop(self.seq_return2.keys()[k])
             k = m.index(min(m))
             self.seq_return_dist[self.seq_return2.keys()[k]] = min(m)
             self.sorted_return_index.append(self.seq_return2.keys()[k])
