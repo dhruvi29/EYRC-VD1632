@@ -7,11 +7,13 @@ long_setpoint = list()
 alt_setpoint = list()
 distancee = list()
 # lat and long according to ['C2', 'B2', 'B1', 'C3', 'C1', 'A1', 'A3', 'B3', 'A2']
-build_lat = ['18.999837387', '18.999823836' ,'18.999837387','18.999837387','18.9998102845','18.9998102845','18.999823836','18.9998102845' ]
-build_long = ['72.000156707','72.000142461','72.000170953','72.000142461','72.000142461','72.000170953','72.000170953','72.000156707']
+# build_lat = ['18.999837387', '18.999823836','18.999823836' ,'18.999837387','18.999837387','18.9998102845','18.9998102845','18.999823836','18.9998102845' ]
+# build_long = ['72.000156707','72.000156707','72.000142461','72.000170953','72.000142461','72.000142461','72.000170953','72.000170953','72.000156707']
+build_lat = ['18.999823836','18.999837387','18.9998102845','18.999823836','18.9998102845','18.999837387','18.9998102845','18.999823836', '18.999837387' ]
+build_long = ['72.000142461','72.000170953','72.000142461','72.000156707','72.000170953','72.000156707','72.000156707','72.000170953','72.000142461']
 i = 0
 dist = 0
-with open('manifest.csv', 'r') as file:
+with open('original.csv', 'r') as file:
     reader = csv.reader(file)
     for row in reader:
         if row[0] == "DELIVERY" :
@@ -27,9 +29,9 @@ with open('manifest.csv', 'r') as file:
             #     continue
     while i<9:
         dist = math.sqrt(math.pow(110692.0702932625 * (float(lat_setpoint[i]) - float(build_lat[i])) , 2) + math.pow(105292.0089353767 * (float(long_setpoint[i]) - float(build_long[i])) , 2))
-        # print(dist)
+        print(dist)
         distancee.append(dist)
         i +=1
     distancee.sort(reverse=True)    
-    print(distancee)
+    # print(distancee)
     # print(lat_setpoint,long_setpoint,alt_setpoint)
