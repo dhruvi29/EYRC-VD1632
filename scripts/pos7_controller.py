@@ -50,9 +50,12 @@ class edrone():
         # self.Kp = [372*200, 502*200, 1500*0.06]
         # self.Ki = [0.0, 0.0, 0.0*0.008]
         # self.Kd = [764*10000, 831*10000, 5500*0.3]
+        # self.Kp = [495*200, 470*200, 1500*0.06]
+        # self.Ki = [0.0, 0.0, 0.0*0.008]
+        # self.Kd = [745*10000, 760*10000, 5600*0.3]
         self.Kp = [460*200, 435*200, 1500*0.06]
         self.Ki = [0.0, 0.0, 0.0*0.008]
-        self.Kd = [740*10000, 755*10000, 5500*0.3]
+        self.Kd = [740*10000, 755*10000, 5550*0.3]        
 
         # calculating errors
         self.error = [999.00, 999.0, 999.00]
@@ -326,19 +329,19 @@ class edrone():
     def distance(self):
         self.dist = math.sqrt(math.pow(110692.0702932625 * (self.goal_point[0] - self.set_point[0]) , 2) + math.pow(105292.0089353767 * (self.goal_point[1] - self.set_point[1]) , 2))
         if 0<self.dist < 5 :
-            self.t = self.dist*40  
-        elif 5 <= self.dist < 10 :
-            self.t = self.dist*15
-        elif 10 <= self.dist < 40 :
-            self.t = self.dist*6.5
+            self.t = self.dist*35 #self.dist*40
+        elif 5 <= self.dist < 15 :
+            self.t = self.dist*13 #self.dist*15
+        elif 15 <= self.dist < 40 :
+            self.t = self.dist*6.5 #self.dist*3
         elif 40 <= self.dist < 80 :
-            self.t = self.dist*4.5
+            self.t = self.dist*3.6 #self.dist*2.75
         elif 80 <= self.dist < 120 :
-            self.t = self.dist*3
+            self.t = self.dist*2.4 #self.dist*2.5
         elif 120 <= self.dist < 160 :
-            self.t = self.dist*2.5
+            self.t = self.dist*1.8 #self.dist*2.25
         elif 160 <= self.dist < 200 :
-            self.t = self.dist*2
+            self.t = self.dist*0.9 #self.dist*2
         else :
             self.t = self.dist*1.75
         if self.t == 0:
@@ -492,7 +495,7 @@ class edrone():
                         self.set_point[2]=self.goal_point[2]+self.fly_hieght    
                     else:                    
                         self.set_point[2]=float(self.ret_alt_setpoint[self.ret_loc_count])+self.fly_hieght                    
-                if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.0001500:
+                if abs(self.goal_point[0]-self.curr_point[0])<0.0001600 and abs(self.goal_point[1]-self.curr_point[1])<0.0001600:
                     self.set_point[0]=self.goal_point[0]
                     self.set_point[1]=self.goal_point[1]
 
