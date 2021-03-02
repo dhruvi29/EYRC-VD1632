@@ -1,19 +1,13 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python2
 
 '''
-This python file runs a ROS-node of name attitude_control which controls the roll pitch and yaw angles of the eDrone.
-This node publishes and subsribes the following topics:
-        PUBLICATIONS            SUBSCRIPTIONS
-        /roll_error             /pid_tuning_altitude
-        /pitch_error            /pid_tuning_pitch
-        /yaw_error              /pid_tuning_roll
-        /edrone/pwm             /edrone/imu/data
-                                /edrone/drone_command
-Rather than using different variables, use list. eg : self.setpoint = [1,2,3], where index corresponds to x,y,z ...rather than defining self.x_setpoint = 1, self.y_setpoint = 2
-CODE MODULARITY AND TECHNIQUES MENTIONED LIKE THIS WILL HELP YOU GAINING MORE MARKS WHILE CODE EVALUATION.
+# Team ID:          VD 1632
+# Theme:            Vitarana Drone(VD)
+# Author List:      Karthik Swaminathan, Dhruvi Doshi, Ninad Jangle, Dhairya Shah
+# Filename:         attitude_position_controller.py
+# Functions:        pid()
+# Global variables: none
 '''
-
-# rostopic pub /drone_command vitarana_drone/edrone_cmd "{rcRoll: 1500, rcPitch: 1500, rcYaw: 1500, rcThrottle: 1500, aux1: 0.0, aux2:  0.0, aux3: 0.0, aux4: 0.0}"
 
 # Importing the required libraries
 from vitarana_drone.msg import *
@@ -30,33 +24,48 @@ import math
 class Edrone():
     #default object constructor->gets called everytime when an instance is initialzed
     def __init__(self):
+        '''
+        Purpose:
+        ---
+        initialize class variables and set publishers and subscribers
+
+        Input Arguments:
+        ---
+        None
+
+        Returns:
+        ---
+        None
+
+        Example call:
+        ---
+        This function is a constructor, gets implicity called on creation of instance of class Edrone
+        e_drone=Edrone()
+        '''
+
         # initializing ros node with name attitude_controller
         rospy.init_node('attitude_controller')  
 
-        # This corresponds to your current orientation of eDrone in quaternion format. This value must be updated each time in your imu callback
+        # self.drone_orientation_quaternion: This corresponds to your current orientation of eDrone in quaternion format. This value must be updated each time in your imu callback
         # [x,y,z,w]
         self.drone_orientation_quaternion = [0.0, 0.0, 0.0, 0.0]
 
-        # This corresponds to your current orientation of eDrone converted in euler angles form.
+        # self.drone_orientation_euler: This corresponds to your current orientation of eDrone converted in euler angles form.
         # [r,p,y]
         self.drone_orientation_euler = [0.0, 0.0, 0.0]
 
-        # This is the setpoint that will be received from the drone_command in the range from 1000 to 2000
+        # self.setpoint_cmd: This is the setpoint that will be received from the drone_command in the range from 1000 to 2000
         # [r_setpoint, p_setpoint, y_setpoint]
-        # Initialising setpoints
         self.setpoint_cmd = [1500.0, 1500.0, 1500.0]
-        # Initialising Thrust and Throttle
+        # self.Throttle: This is the throttle setpoint that will be received from the drone_command in the range from 1000 to 2000
         self.Throttle=0.0
 
-        # The setpoint of orientation in euler angles at which you want to stabilize the drone
+        # self.setpoint_euler: The setpoint of orientation in euler angles at which you want to stabilize the drone
         # [r_setpoint, p_setpoint, y_setpoint]
         self.setpoint_euler = [0.0, 0.0, 0.0]
 
         #----------------------------------------------------------------------------------------------------------------
-        # Declaring pwm_cmd of message type prop_speed and initializing values
-        # Hint: To see the message structure of prop_speed type the following command in the terminal
-        # rosmsg show vitarana_drone/prop_speed
-
+        # self.pwm_cmd: Declaring pwm_cmd of message type prop_speed and initializing values
         #initialisng PWM speeds for motors
         self.pwm_cmd = prop_speed()
         self.pwm_cmd.prop1 = 0.0
@@ -72,17 +81,24 @@ class Edrone():
         self.Kd = [566*0.3, 240*0.3, 480*3]
         
         #----------------------------------------------------------------------------------------------------------
-        #Initialising Variables for  Storing Previous Error, maximum and minimum motor PWM values,
-        #Intantaneuos Error , Integral and Derivative PID Terms
-        self.prev_error = [0,0,0]
-        self.max_values = [1023, 1023, 1023, 1023]
-        self.min_values = [0, 0, 0, 0]
+        # Initialising Variables for PID
+        
+        # self.prev_error: Stores errors of roll,pitch,yaw i.e (self.setpoint_euler-self.drone_orientation_euler)
         self.error = [0.0,0.0,0.0]
+        # self.prev_error: Stores errors of previous iteration of roll,pitch,yaw
+        self.prev_error = [0,0,0]
+        # self.max_values: Stores maximum values of the propellers
+        self.max_values = [1023, 1023, 1023, 1023]
+        # self.min_values: Stores minimum values of the propellers
+        self.min_values = [0, 0, 0, 0]
+        # self.err_sum: cumulative sum of error over all iterations
         self.err_sum = [0.0,0.0,0.0]
+        # differential error i.e. prev_error-error
         self.dErr = [0.0,0.0,0.0]
+        # self.iterm_limit: a constant to limit the maximum value of err_sum
         self.iterm_limit = 1
 
-        #sample time for running PID
+        # self.sample_time: sample time for running PID
         self.sample_time = 0.06  # in seconds
         
         #------------------------------------------------------------------------------------------------------------
@@ -90,10 +106,10 @@ class Edrone():
         self.pwm_pub = rospy.Publisher('/edrone/pwm', prop_speed, queue_size=1)
         
         # the below Publications can be uncommented during tuning
-        # self.roll_error_pub = rospy.Publisher('/roll_error', Float32, queue_size=1)
-        # self.pitch_error_pub = rospy.Publisher('/pitch_error', Float32, queue_size=1)
-        # self.yaw_error_pub = rospy.Publisher('/yaw_error', Float32, queue_size=1)
-        # self.zero_error_pub = rospy.Publisher('/zero_error', Float32, queue_size=1)	  
+        self.roll_error_pub = rospy.Publisher('/roll_error', Float32, queue_size=1)
+        self.pitch_error_pub = rospy.Publisher('/pitch_error', Float32, queue_size=1)
+        self.yaw_error_pub = rospy.Publisher('/yaw_error', Float32, queue_size=1)
+        self.zero_error_pub = rospy.Publisher('/zero_error', Float32, queue_size=1)	  
 
         # -----------------------------------------------------------------------------------------------------------
         # Subscribing to /drone_command, imu/data, /pid_tuning_roll, /pid_tuning_pitch, /pid_tuning_yaw
@@ -101,27 +117,21 @@ class Edrone():
         rospy.Subscriber('/edrone/imu/data', Imu, self.imu_callback)
         # rospy.Subscriber('/pid_tuning_roll', PidTune, self.roll_set_pid)
 	    # rospy.Subscriber('/pid_tuning_pitch', PidTune, self.pitch_set_pid)
-        # rospy.Subscriber('/pid_tuning_yaw', PidTune, self.yaw_set_pid)
+        rospy.Subscriber('/pid_tuning_yaw', PidTune, self.yaw_set_pid)
         # ------------------------------------------------------------------------------------------------------------
 
-    # Imu callback function
-    # The function gets executed each time when imu publishes /edrone/imu/data
-
-    # Note: The imu publishes various kind of data viz angular velocity, linear acceleration, magnetometer reading (if present),
-    # but here we are interested in the orientation which can be calculated by a complex algorithm called filtering which is not in the scope of this task,
-    # so for your ease, we have the orientation published directly BUT in quaternion format and not in euler angles.
-    # We need to convert the quaternion format to euler angles format to understand the orienataion of the edrone in an easy manner.
-    # Hint: To know the message structure of sensor_msgs/Imu, execute the following command in the terminal
-    # rosmsg show sensor_msgs/Imu
 
     #-------------------------------------------------------------------------------------------------------------------------
     #functions for callbacks to update values from subscriptions
+
+    # Description: This callback function gets current roll,pitch,yaw status
     def imu_callback(self, msg):
         self.drone_orientation_quaternion[0] = msg.orientation.x
         self.drone_orientation_quaternion[1] = msg.orientation.y
         self.drone_orientation_quaternion[2] = msg.orientation.z
         self.drone_orientation_quaternion[3] = msg.orientation.w
 
+    # Description: This callback recieves setpoints for roll,pitch,yaw and throttle from position_controller script
     def drone_command_callback(self, msg):
         self.setpoint_cmd[0] = msg.rcRoll
         self.setpoint_cmd[1] = msg.rcPitch
@@ -151,8 +161,27 @@ class Edrone():
 
 
     # ----------------------------------------------------------------------------------------------------------------------
-    # main function for implementing PID algorithm
     def pid(self):
+        '''
+        Purpose:
+        ---
+        main function for implementing PID algorithm< Short-text describing the purpose of this function.
+        Publishes propeller speed according to desired roll,pitch and yaw.
+
+        Input Arguments:
+        ---
+        None
+
+        Returns:
+        ---
+        None
+
+        Example call:
+        ---
+        e_drone = Edrone()
+        e_drone.pid()
+        '''
+
         # Converting quaternion to euler angles
         (self.drone_orientation_euler[0], self.drone_orientation_euler[1], self.drone_orientation_euler[2]) = tf.transformations.euler_from_quaternion([self.drone_orientation_quaternion[0], self.drone_orientation_quaternion[1], self.drone_orientation_quaternion[2], self.drone_orientation_quaternion[3]])
 
@@ -234,6 +263,11 @@ class Edrone():
 
 #-------------------------------------------------------------------------------------------------------------
 # Main Driver Function
+
+# Function Name:    main (built in)
+#        Inputs:    None
+#       Outputs:    None
+#       Purpose:    To call the PID function recursively until rospy is not shutdown
 if __name__ == '__main__':
     #Creating instance of class Edrone
     e_drone = Edrone()

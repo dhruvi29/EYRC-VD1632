@@ -223,8 +223,8 @@ class edrone():
             m = []
    
 
-        # Writing the scheduled DELIVERY-RETURN order in sequenced_manifest_original.csv
-        with open('/home/dhairya/catkin_ws/src/vitarana_drone/scripts/sequenced_manifest_original.csv', 'w') as file:
+        # Writing the scheduled DELIVERY-RETURN order in sequenced_manifest.csv
+        with open('/home/dhairya/catkin_ws/src/vitarana_drone/scripts/sequenced_manifest.csv', 'w') as file:
             writer = csv.writer(file)
             for c in range(len(self.sorted_delivery_index)):
                 s = ";".join([str(self.seq_delivery[self.sorted_delivery_index[c]][0]),str(self.seq_delivery[self.sorted_delivery_index[c]][1]),str(self.seq_delivery[self.sorted_delivery_index[c]][2])])
