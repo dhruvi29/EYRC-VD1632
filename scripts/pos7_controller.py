@@ -40,9 +40,19 @@ class edrone():
         self.attitude_cmd.rcThrottle = 1500.0
         self.base_value = 1500
 
-        self.Kp = [450*200, 425*200, 1500*0.06]
-        self.Ki = [0.0, 0.0, 0.0*0.008]
-        self.Kd = [735*10000, 750*10000, 5500*0.3]
+        # setting PID constants based on tuning
+        # self.Kp = [0.06*5100*176, 1243* 0.06*5100, 1500*0.06]
+        # self.Ki = [0.0, 0.0, 0.0*0.008]
+        # self.Kd = [0.3*20500*873, 2102*0.3*20500, 5500*0.3]
+        # self.Kp = [0.0, 0.0, 1500*0.06]
+        # self.Ki = [0.0, 0.0, 0.0*0.008]
+        # self.Kd = [0.0, 0.0, 5500*0.3]
+        # self.Kp = [372*200, 502*200, 1500*0.06]
+        # self.Ki = [0.0, 0.0, 0.0*0.008]
+        # self.Kd = [764*10000, 831*10000, 5500*0.3]
+        self.Kp = [460*200, 435*200, 1582*0.06]
+        self.Ki = [0.0, 0.0, 3*0.008]
+        self.Kd = [740*10000, 755*10000, 5550*0.3]
 
         # calculating errors
         self.error = [999.00, 999.0, 999.00]
@@ -123,7 +133,6 @@ class edrone():
 
                 elif row[0]=="RETURN":    
                     self.seq_return[row[2]] = [float(r) for r in row[1].split(";")]
-        
 
         # sequencing deliveries as per distance between grid and approximate building point(largest first)
         for (key, val) in self.seq_delivery.items():
@@ -160,7 +169,7 @@ class edrone():
         print("SORTED DELIVERY: ",self.sorted_delivery_index)
         print("SORTED RETURN: ",self.sorted_return_index)    
 
-        with open('/home/dhruvi/Desktop/catkin_ws/src/vitarana_drone/scripts/sequenced_manifest_orignal.csv', 'w') as file:
+        with open('/home/dhruvi/Desktop/catkin_ws/src/vitarana_drone/scripts/sequenced_manifest_original.csv', 'w') as file:
             writer = csv.writer(file)
             for c in range(len(self.sorted_delivery_index)):
                 s = ";".join([str(self.seq_delivery[self.sorted_delivery_index[c]][0]),str(self.seq_delivery[self.sorted_delivery_index[c]][1]),str(self.seq_delivery[self.sorted_delivery_index[c]][2])])
@@ -255,7 +264,7 @@ class edrone():
         self.Kd[1] = msg.Kd * 10000
 
     def altitude_set_pid(self, msg):
-        self.Kp[2] = msg.Kp * 0.2
+        self.Kp[2] = msg.Kp * 0.06
         self.Ki[2] = msg.Ki * 0.008
         self.Kd[2] = msg.Kd * 0.3
  
@@ -317,21 +326,21 @@ class edrone():
     def distance(self):
         self.dist = math.sqrt(math.pow(110692.0702932625 * (self.goal_point[0] - self.set_point[0]) , 2) + math.pow(105292.0089353767 * (self.goal_point[1] - self.set_point[1]) , 2))
         if 0<self.dist < 5 :
-            self.t = self.dist*40  
+            self.t = self.dist*35  
         elif 5 <= self.dist < 10 :
-            self.t = self.dist*15
+            self.t = self.dist*13
         elif 10 <= self.dist < 40 :
             self.t = self.dist*6.5
         elif 40 <= self.dist < 80 :
-            self.t = self.dist*4.5
+            self.t = self.dist*3.6
         elif 80 <= self.dist < 120 :
-            self.t = self.dist*3
+            self.t = self.dist*2.4
         elif 120 <= self.dist < 160 :
-            self.t = self.dist*2.5
+            self.t = self.dist*1.8
         elif 160 <= self.dist < 200 :
-            self.t = self.dist*2.5
+            self.t = self.dist*0.9
         else :
-            self.t = self.dist*2
+            self.t = self.dist*1.75
         if self.t == 0:
             self.t = 1            
         self.dx = (self.goal_point[0] - self.set_point[0])/self.t
@@ -386,7 +395,7 @@ class edrone():
                     self.path_plan()
                     # if abs(self.goal_point[0]-self.curr_point[0])<0.00003000 and abs(self.goal_point[1]-self.curr_point[1])<0.00003000:
                     #     self.set_point[2] = self.alt_setpoint[n]+7                       
-                    if -0.3 < self.err_x_m < 0.3 and -0.3 < self.err_y_m < 0.3 :
+                    if -0.4 < self.err_x_m < 0.4 and -0.4 < self.err_y_m < 0.4 :
                         self.set_point[2] = self.alt_setpoint[self.loc_count]+0.4
                         # self.set_point[2] = self.set_point[2]-0.1
                         if abs(self.set_point[2]-self.curr_point[2]) < 0.2:
@@ -419,7 +428,7 @@ class edrone():
             else:
                 if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.000300:
                     self.set_point[2]=self.alt_setpoint[self.loc_count]+10
-                if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.0001500:
+                if abs(self.goal_point[0]-self.curr_point[0])<0.00017500 and abs(self.goal_point[1]-self.curr_point[1])<0.00017500:
                     self.set_point[0]=self.goal_point[0]
                     self.set_point[1]=self.goal_point[1]    
                 else:                  
@@ -427,7 +436,7 @@ class edrone():
         else:
             if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002000:
                 self.set_point[2]=self.Return[self.sorted_return_index[self.n]][2]+7                   
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.00012500:
+            if abs(self.goal_point[0]-self.curr_point[0])<0.00017500 and abs(self.goal_point[1]-self.curr_point[1])<0.00017500:
                 self.set_point[0]=self.goal_point[0]
                 self.set_point[1]=self.goal_point[1]
 
