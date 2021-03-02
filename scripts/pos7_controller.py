@@ -50,9 +50,9 @@ class edrone():
         # self.Kp = [372*200, 502*200, 1500*0.06]
         # self.Ki = [0.0, 0.0, 0.0*0.008]
         # self.Kd = [764*10000, 831*10000, 5500*0.3]
-        self.Kp = [450*200, 425*200, 1500*0.06]
+        self.Kp = [460*200, 435*200, 1500*0.06]
         self.Ki = [0.0, 0.0, 0.0*0.008]
-        self.Kd = [735*10000, 750*10000, 5500*0.3]
+        self.Kd = [740*10000, 755*10000, 5500*0.3]
 
         # calculating errors
         self.error = [999.00, 999.0, 999.00]
@@ -338,9 +338,9 @@ class edrone():
         elif 120 <= self.dist < 160 :
             self.t = self.dist*2.5
         elif 160 <= self.dist < 200 :
-            self.t = self.dist*2.5
-        else :
             self.t = self.dist*2
+        else :
+            self.t = self.dist*1.75
         if self.t == 0:
             self.t = 1            
         self.dx = (self.goal_point[0] - self.set_point[0])/self.t
@@ -395,7 +395,7 @@ class edrone():
                     self.path_plan()
                     # if abs(self.goal_point[0]-self.curr_point[0])<0.00003000 and abs(self.goal_point[1]-self.curr_point[1])<0.00003000:
                     #     self.set_point[2] = self.alt_setpoint[n]+7                       
-                    if -0.3 < self.err_x_m < 0.3 and -0.3 < self.err_y_m < 0.3 :
+                    if -0.4 < self.err_x_m < 0.4 and -0.4 < self.err_y_m < 0.4 :
                         self.set_point[2] = self.alt_setpoint[self.loc_count]+0.4
                         # self.set_point[2] = self.set_point[2]-0.1
                         if abs(self.set_point[2]-self.curr_point[2]) < 0.2:
@@ -428,7 +428,7 @@ class edrone():
             else:
                 if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.000300:
                     self.set_point[2]=self.alt_setpoint[self.loc_count]+10
-                if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.0001500:
+                if abs(self.goal_point[0]-self.curr_point[0])<0.00017500 and abs(self.goal_point[1]-self.curr_point[1])<0.00017500:
                     self.set_point[0]=self.goal_point[0]
                     self.set_point[1]=self.goal_point[1]    
                 else:                  
@@ -436,7 +436,7 @@ class edrone():
         else:
             if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002000:
                 self.set_point[2]=self.Return[self.sorted_return_index[self.n]][2]+7                   
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.00012500:
+            if abs(self.goal_point[0]-self.curr_point[0])<0.00017500 and abs(self.goal_point[1]-self.curr_point[1])<0.00017500:
                 self.set_point[0]=self.goal_point[0]
                 self.set_point[1]=self.goal_point[1]
 
