@@ -437,7 +437,7 @@ class edrone():
                 else:                  
                     self.path_plan()
         else:
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.0002000:
+            if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.0003000:
                 self.set_point[2]=self.Return[self.sorted_return_index[self.n]][2]+7                   
             if abs(self.goal_point[0]-self.curr_point[0])<0.00017500 and abs(self.goal_point[1]-self.curr_point[1])<0.00017500:
                 self.set_point[0]=self.goal_point[0]
