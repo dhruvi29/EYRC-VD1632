@@ -75,13 +75,13 @@ class edrone():
         # setting PID constants based on tuning
         # self.Kp: List of Proportional constants for latitiude, longitude and altitude PID respectively
         # self.Kp = [495*200, 470*200, 1500*0.06]
-        self.Kp = [460*200, 481*200, 1500*0.06]
+        self.Kp = [460*200, 481*200, 1600*0.06]
 
         # self.Ki: List of Integral constants for latitiude, longitude and altitude PID respectively
         self.Ki = [0.0, 0.0, 0.0*0.008]
         # self.Kd: List of Differential constants for latitiude, longitude and altitude PID respectively
         # self.Kd = [745*10000, 760*10000, 5550*0.3] #5600
-        self.Kd = [733*10000, 720*10000, 5700*0.3] #5600
+        self.Kd = [733*10000, 720*10000, 5750*0.3] #5600
 
 
         # self.Kp = [460*200, 435*200, 1500*0.06]
@@ -437,19 +437,19 @@ class edrone():
         self.dist = math.sqrt(math.pow(110692.0702932625 * (self.goal_point[0] - self.set_point[0]) , 2) + math.pow(105292.0089353767 * (self.goal_point[1] - self.set_point[1]) , 2))
         # Calculating no of setpoints based on distance magnitude
         if 0<self.dist < 3 :
-            self.no_points = self.dist*44
+            self.no_points = self.dist*40
         elif 3<self.dist < 6 :
-            self.no_points = self.dist*26
+            self.no_points = self.dist*23
         elif 6 <= self.dist < 10 :
-            self.no_points = self.dist*16
+            self.no_points = self.dist*13
         elif 10<= self.dist < 15:
             self.no_points = self.dist*4.25
         elif 15<= self.dist < 20:
-            self.no_points = self.dist*4
-        elif 20 <= self.dist < 40 :
             self.no_points = self.dist*3
+        elif 20 <= self.dist < 40 :
+            self.no_points = self.dist*2
         elif 40 <= self.dist < 60 :
-            self.no_points = self.dist*1.8
+            self.no_points = self.dist*1.6
         elif 60 <= self.dist < 80 :
             self.no_points = self.dist*1.5
         # elif 80 <= self.dist < 100 :
@@ -463,7 +463,7 @@ class edrone():
         # elif 160 <= self.dist < 200 :
         #     self.no_points = self.dist*0.9
         else :
-            self.no_points = self.dist*1.1 #self.dist*0.81
+            self.no_points = self.dist*1.2 #self.dist*0.81
         if self.no_points == 0:
             self.no_points = 1
         # Calculating incremental latitude and longitude distance          
@@ -573,7 +573,7 @@ class edrone():
                             else:
                                 self.set_point[0],self.set_point[1]= self.curr_point[0],self.curr_point[1]
                                 # self.set_point[2] = self.alt_setpoint[self.loc_count-1]+2
-                                self.goal_point[0],self.goal_point[1],self.goal_point[2] = float(self.ret_lat_setpoint[self.ret_loc_count]),float(self.ret_long_setpoint[self.ret_loc_count]),float(self.ret_alt_setpoint[self.ret_loc_count])+7
+                                self.goal_point[0],self.goal_point[1],self.goal_point[2] = float(self.ret_lat_setpoint[self.ret_loc_count]),float(self.ret_long_setpoint[self.ret_loc_count]),float(self.ret_alt_setpoint[self.ret_loc_count])+8
                                 if self.set_point[2] > self.goal_point[2]:
                                     self.set_point[2]=max(self.set_point[2]+3,self.goal_point[2])#self.fly_height)
                                 else:
@@ -598,7 +598,7 @@ class edrone():
                 else:                  
                     self.path_plan()
         else:
-            if abs(self.goal_point[0]-self.curr_point[0])<0.0002400 and abs(self.goal_point[1]-self.curr_point[1])<0.0002400:
+            if abs(self.goal_point[0]-self.curr_point[0])<0.0003000 and abs(self.goal_point[1]-self.curr_point[1])<0.0003000:
                 self.set_point[2]=self.Return[self.sorted_return_index[self.ret_loc_count]][2]+10                   
             if abs(self.goal_point[0]-self.curr_point[0])<0.00017500 and abs(self.goal_point[1]-self.curr_point[1])<0.00017500:
                 self.set_point[0]=self.goal_point[0]
@@ -669,11 +669,11 @@ class edrone():
             if self.gripper == "True":
                 self.box_dropping()
             else:
-                if abs(self.goal_point[0]-self.curr_point[0])<0.00017500 and abs(self.goal_point[1]-self.curr_point[1])<0.00017500:
+                if abs(self.goal_point[0]-self.curr_point[0])<0.0002500 and abs(self.goal_point[1]-self.curr_point[1])<0.0002500:
                     if self.ret == False:
-                        self.set_point[2]=self.goal_point[2]+5   
+                        self.set_point[2]=self.goal_point[2]+self.fly_height   
                     else:                    
-                        self.set_point[2]=float(self.ret_alt_setpoint[self.ret_loc_count])+5
+                        self.set_point[2]=float(self.ret_alt_setpoint[self.ret_loc_count])+8
                 if abs(self.goal_point[0]-self.curr_point[0])<0.0001500 and abs(self.goal_point[1]-self.curr_point[1])<0.0001500:
                     self.set_point[0]=self.goal_point[0]
                     self.set_point[1]=self.goal_point[1]
