@@ -84,8 +84,6 @@ class detect():
 
 			self.markerdata.err_x_m = (self.Center-centre_x_pixel)*(self.curr_point[2] - self.altitude)/self.focal_length
 			self.markerdata.err_y_m = (self.Center-centre_y_pixel)*(self.curr_point[2] - self.altitude)/self.focal_length
-			# self.markerdata.err_x_m = (self.Center-centre_x_pixel)*(self.Z_m)/self.focal_length
-			# self.markerdata.err_y_m = (self.Center-centre_y_pixel)*(self.Z_m)/self.focal_length
 			self.markerdata.marker_id = marker_id
 
 			# plt.imshow(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB))
