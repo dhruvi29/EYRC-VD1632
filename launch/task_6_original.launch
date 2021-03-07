@@ -11,7 +11,7 @@
         <node name="detect_marker_cascade" type="detect_marker_cascade2.py" pkg="vitarana_drone"/>
    
     <arg name="record" default="false"/>
-    <arg name="duration" default="600"/>
+    <arg name="duration" default="800"/>
     <arg name="rec_name" default="Task_5_VD.bag"/>
 
     <group if="$(arg record)">
