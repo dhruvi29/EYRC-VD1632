@@ -1,0 +1,6 @@
+<launch>
+	<node pkg="pkg_ros_basics" type="node_hello_ros.py" name="node_hello_ros" output="screen"/>
+	<rosparam file ="$(find pkg_ros_basics)/config/config_my.yaml"/>
+	
+</launch>
+

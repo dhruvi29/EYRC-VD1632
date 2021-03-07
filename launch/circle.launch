@@ -1,0 +1,5 @@
+<launch>
+
+	<node pkg="turtlesim" type="turtlesim_node" name="node_turtlesim_node"/>
+	<node name="node_turtle_revolve" pkg="pkg_ros_basics" type="circle.py"/>
+</launch>
