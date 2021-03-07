@@ -16,8 +16,8 @@ Vitarana Drone. Vitarana (IPA: vitaraṇa) means distribution in Sanskrit and ma
 
 ### Tech stack
 1. Robot Operating System
-1. robotics simulator Gazebo
-1.the Python programming language and many of its libraries.
+1. Robotics simulator Gazebo
+1. The Python programming language and many of its libraries.
 
 ### Concepts used
 1. concepts of control systems
@@ -29,3 +29,12 @@ Vitarana Drone. Vitarana (IPA: vitaraṇa) means distribution in Sanskrit and ma
 The competition was conducted as a series of 6 tasks,final problem statement is for the drone to deliver various packages to their destinations, optimizing for time and quantity.
 
 ![](./assets/theme_vd.png)
+
+## This Repo
+
+### About
+This repository contains our solutions(task-wise).
+> The `main` branch contains only the important code files of each task, our rosbag submissions and launch files.
+> There are seperate branches named as `task_task-no.` for each task containing entire packages. 
+> Each branch has respective taks's readme file which gives detailed problem statement for that particular task and their respective solutions.
+> We'll also link the Youtube videos of our submissions soon.
