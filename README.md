@@ -34,7 +34,7 @@ The competition was conducted as a series of 6 tasks,final problem statement is 
 
 ### About
 This repository contains our solutions(task-wise).
-> The `main` branch contains only the important code files of each task, our rosbag submissions and launch files.
-> There are seperate branches named as `task_task-no.` for each task containing entire packages. 
-> Each branch has respective taks's readme file which gives detailed problem statement for that particular task and their respective solutions.
-> We'll also link the Youtube videos of our submissions soon.
+[x] The `main` branch contains only the important code files of each task, our rosbag submissions and launch files.
+[x] There are seperate branches named as `task_task-no.` for each task containing entire packages. 
+[x] Each branch has respective taks's readme file which gives detailed problem statement for that particular task and their respective solutions.
+[x] We'll also link the Youtube videos of our submissions soon.
