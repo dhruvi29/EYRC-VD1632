@@ -67,9 +67,9 @@ class Edrone():
         #-------------------------------------------------------------------------------------------------------------------
         # initial setting of Kp, Kd and ki for [roll, pitch, yaw]. eg: self.Kp[2] corresponds to Kp value in yaw axis
         # after tuning the PID- r,p parameters 
-        self.Kp = [2052*0.06 ,1266*0.06, 3362*0.6]
-        self.Ki = [0, 4*0.008,192*0.08 ]
-        self.Kd = [566*0.3, 240*0.3, 480*3]
+        self.Kp = [2052*0.06 ,1266*0.06, 0]
+        self.Ki = [0, 4*0.008, 0]
+        self.Kd = [566*0.3, 240*0.3, 0]
         
         #----------------------------------------------------------------------------------------------------------
         #Initialising Variables for  Storing Previous Error, maximum and minimum motor PWM values,
@@ -90,10 +90,12 @@ class Edrone():
         self.pwm_pub = rospy.Publisher('/edrone/pwm', prop_speed, queue_size=1)
         
         # the below Publications can be uncommented during tuning
-        self.roll_error_pub = rospy.Publisher('/roll_error', Float32, queue_size=1)
-        self.pitch_error_pub = rospy.Publisher('/pitch_error', Float32, queue_size=1)
-        self.yaw_error_pub = rospy.Publisher('/yaw_error', Float32, queue_size=1)
-        self.zero_error_pub = rospy.Publisher('/zero_error', Float32, queue_size=1)	  
+	    # self.roll_error_pub = rospy.Publisher('/roll_error', Float32, queue_size=1)
+	    # self.pitch_error_pub = rospy.Publisher('/pitch_error', Float32, queue_size=1)
+	    # self.yaw_error_pub = rospy.Publisher('/yaw_error', Float32, queue_size=1)
+        # self.zero_error_pub = rospy.Publisher('/zero_error', Float32, queue_size=1)	    # self.roll_error_pub = rospy.Publisher('/roll_error', Float32, queue_size=1)
+	    # self.pitch_error_pub = rospy.Publisher('/pitch_error', Float32, queue_size=1)
+	    # self.yaw_error_pub = rospy.Publisher('/yaw_error', Float32, queue_size=1)
 
         # -----------------------------------------------------------------------------------------------------------
         # Subscribing to /drone_command, imu/data, /pid_tuning_roll, /pid_tuning_pitch, /pid_tuning_yaw
@@ -101,7 +103,7 @@ class Edrone():
         rospy.Subscriber('/edrone/imu/data', Imu, self.imu_callback)
         # rospy.Subscriber('/pid_tuning_roll', PidTune, self.roll_set_pid)
 	    # rospy.Subscriber('/pid_tuning_pitch', PidTune, self.pitch_set_pid)
-        rospy.Subscriber('/pid_tuning_yaw', PidTune, self.yaw_set_pid)
+	    # rospy.Subscriber('/pid_tuning_yaw', PidTune, self.yaw_set_pid)
         # ------------------------------------------------------------------------------------------------------------
 
     # Imu callback function
@@ -129,7 +131,7 @@ class Edrone():
         self.Throttle = msg.rcThrottle
        
 
-    # ---------------------------------------------------------------------------------------------------------------
+        # ---------------------------------------------------------------------------------------------------------------
 
     # Callback function for /pid_tuning_roll
     # This function gets executed each time when /tune_pid publishes /pid_tuning_roll
@@ -144,10 +146,10 @@ class Edrone():
     #     self.Ki[1] = pitch.Ki * 0.008
     #     self.Kd[1] = pitch.Kd * 0.3
 
-    def yaw_set_pid(self, yaw):
-        self.Kp[2] = yaw.Kp * 0.6  
-        self.Ki[2] = yaw.Ki * 0.08
-        self.Kd[2] = yaw.Kd * 3
+    # def yaw_set_pid(self, yaw):
+    #     self.Kp[2] = yaw.Kp * 0.06  
+    #     self.Ki[2] = yaw.Ki * 0.008
+    #     self.Kd[2] = yaw.Kd * 0.3
 
 
     # ----------------------------------------------------------------------------------------------------------------------
@@ -227,10 +229,10 @@ class Edrone():
         #The below Publications can be uncommented during r,p,y tuning 
 
         #Error Publications->
-        self.zero_error_pub.publish(0)
-        self.roll_error_pub.publish(self.error[0])
-        self.pitch_error_pub.publish(self.error[1])
-        self.yaw_error_pub.publish(self.error[2])
+        # self.zero_error_pub.publish(0)
+        # self.roll_error_pub.publish(self.error[0])
+        # self.pitch_error_pub.publish(self.error[1])
+        # self.yaw_error_pub.publish(Float32())
 
 #-------------------------------------------------------------------------------------------------------------
 # Main Driver Function
